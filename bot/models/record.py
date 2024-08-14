@@ -164,10 +164,16 @@ class Record:
         phones_str = '; '.join(str(p) for p in self.phones)
         if not phones_str:
             phones_str = "----------"
+        
+
+        emails_str = '; '.join(str(e) for e in self.emails)
+        if not emails_str:
+            emails_str = "----------"
+        
 
         if self.birthday:
             birthday_str = self.birthday.value.strftime("%d.%m.%Y")
         else:
             birthday_str = "----------"
 
-        return f"Contact name: {self.name.value}, birthday: {birthday_str}, phones: {phones_str}"
+        return f"Contact name: {self.name.value}, birthday: {birthday_str}, phones: {phones_str}, emails: {emails_str}"
