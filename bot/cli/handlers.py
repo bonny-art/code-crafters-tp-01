@@ -56,9 +56,13 @@ def show_help() -> None:
         "- 'birthdays':         Display upcoming birthdays within 7 days.\n"
         "- 'all':               Display all contacts.\n"
         "- 'close' or 'exit':   Exit the program.\n"
-        "- 'add-email':         Add an email to an existing contact. Usage: add-email <name> <email>\n"  # Додано нову команду
+        "- 'add-email':         Add an email to an existing contact. Usage: add-email <name> <email>\n"  
+        "- 'edit-email':        Edit an existing email for a contact. Usage: edit-email <name> <old_email> <new_email>\n" 
+        
 
     )
+
+#------------------------------------------------------------------
 
 @input_error
 def add_email_to_contacts(args: List[str], address_book: AddressBook) -> str:
@@ -74,7 +78,74 @@ def add_email_to_contacts(args: List[str], address_book: AddressBook) -> str:
         return f"Email '{email_str}' added to contact '{name_str}'."
     except ValueError as e:
         return str(e)
+    
+@input_error
+def edit_contact_email(args: List[str], address_book: AddressBook) -> str:
+    """
+    Edit an existing email address of a contact in the address book.
 
+    Parameters:
+    args (List[str]): List of arguments containing name, old email address, and new email address.
+    address_book (AddressBook): The address book where the contact exists.
+
+    Returns:
+    str: Success or error message indicating whether the email was updated
+    successfully, or if it was not found, or if the old email address was not found.
+    """
+    if len(args) < 3:
+        return "Insufficient arguments. Usage: edit-email <name> <old_email> <new_email>"
+
+    name_str, old_email_str, new_email_str = args
+    record = address_book.find(name_str)
+
+    if not record:
+        return f"No contact found with name {name_str}."
+
+    if not record.find_email(old_email_str):
+        return f"No email address {old_email_str} found for contact {name_str}."
+
+    try:
+        record.edit_email(old_email_str, new_email_str)
+        return f"Email address updated for contact {name_str}."
+    except ValueError as e:
+        return str(e)
+
+@input_error
+def remove_email_from_contact(args: List[str], address_book: AddressBook) -> str:
+    """
+    Remove an email address from a contact in the address book.
+
+    Parameters:
+    args (List[str]): List of arguments containing the name and the email address to remove.
+    address_book (AddressBook): The address book where the contact exists.
+
+    Returns:
+    str: Success or error message indicating whether the email was removed
+    successfully, or if the contact or email address was not found.
+    """
+    if len(args) < 2:
+        return "Insufficient arguments. Usage: remove-email <name> <email>"
+
+    name_str, email_str = args
+    record = address_book.find(name_str)
+
+    if not record:
+        return f"No contact found with name {name_str}."
+
+    if not record.find_email(email_str):
+        return f"No email address {email_str} found for contact {name_str}."
+
+    record.remove_email(email_str)
+    return f"Email address '{email_str}' removed from contact '{name_str}'."
+
+
+
+
+
+
+
+
+#------------------------------------------------------------------
 @input_error
 def add_contact(args: List[str], address_book: AddressBook) -> str:
     """

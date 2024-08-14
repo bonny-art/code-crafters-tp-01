@@ -61,7 +61,7 @@ class Record:
         Args:
         - email_address (str): The email address to remove.
         """
-        self.emails = [e for e in self.emails if e.value != email_address]
+        self.emails = [e for e in self.emails if e.address != email_address]
 
     def edit_email(self, old_email:str, new_email:str) -> None:
         """
@@ -85,7 +85,7 @@ class Record:
         - Email or None: The Email instance if found, otherwise None.
         """
         for email in self.emails:
-            if email.value == email_address:
+            if email.address == email_address:
                 return email
         return None
 

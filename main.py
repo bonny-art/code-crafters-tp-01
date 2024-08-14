@@ -116,6 +116,9 @@ def main() -> None:
         elif command == 'add-email':
             print(handlers.add_email_to_contacts(args, address_book))
 
+        elif command == 'edit-email':
+            print(handlers.edit_contact_email(args, address_book))
+
         else:
             print_with_newlines("Invalid command.")
 
