@@ -116,6 +116,67 @@ def change_contact(args: List[str], address_book: AddressBook) -> str:
 
     record.edit_phone(old_phone_str, new_phone_str)
     return "Contact updated."
+    
+
+@input_error
+def delete_contact(args: List[str], address_book: AddressBook) -> str:
+    """
+    Deletes a contact from the address book.
+
+    Args:
+        args: List containing the contact name to delete.
+        address_book: The AddressBook instance to delete the contact from.
+
+    Returns:
+        str: A message indicating the result of the deletion.
+    """
+    if len(args) < 1:
+        return "Please provide the name of the contact to delete."
+    
+    contact_name = args[0]
+    
+    if contact_name in address_book:
+        address_book.delete(contact_name)
+        return f"Contact '{contact_name}' has been deleted."
+    else:
+        return f"Contact '{contact_name}' not found."
+
+    
+@input_error
+def edit_contact(args: List[str], address_book: AddressBook) -> str:
+    """
+    Edits a contact's information in the address book.
+
+    Args:
+        args: List containing the contact name and fields to update (e.g., phone, name, birthday).
+        address_book: The AddressBook instance to edit the contact in.
+
+    Returns:
+        str: A message indicating the result of the edit.
+    """
+    if len(args) < 3:
+        return "Usage: edit <name> <field> <new_value>"
+
+    contact_name, field, new_value = args[0], args[1], args[2]
+    
+    if contact_name not in address_book:
+        return f"Contact '{contact_name}' not found."
+    
+    record = address_book[contact_name]
+    
+    if field == 'phone':
+        record.edit_phone(new_value)
+    elif field == 'name':
+        new_record = record.change_name(new_value)
+        del address_book[contact_name]  # Remove old contact
+        address_book[new_value] = new_record  # Add new contact with updated name
+    elif field == 'birthday':
+        record.edit_birthday(new_value)
+    else:
+        return f"Unknown field '{field}'. Available fields: name, phone, birthday."
+    
+    return f"Contact '{contact_name}' has been updated."
+
 
 @input_error
 def show_phone(args: List[str], address_book: AddressBook) -> str:
@@ -225,57 +286,3 @@ def birthdays(address_book: AddressBook) -> str:
         return "No contacts."
 
     return address_book.get_upcoming_birthdays()
-
-
-if __name__ == "__main__":
-    print()
-
-    contacts_list = AddressBook()
-
-    # Test show_all
-    # Should show all contacts
-    print(show_all(contacts_list))
-    print()
-
-    # Test add_contact
-    print('Test add_contact >>>')
-    # Should add contact successfully
-    print(add_contact(["John", "123456789"], contacts_list))
-    # Should indicate contact already exists
-    print(add_contact(["John", "987654321"], contacts_list))
-    # Should indicate invalid arguments
-    print(add_contact(["John"], contacts_list))
-    # Should indicate invalid arguments
-    print(add_contact([], contacts_list))
-    print()
-
-    # Test change_contact
-    print('Test change_contact >>>')
-    # Should update contact successfully
-    print(change_contact(["John", "987654321"], contacts_list))
-    # Indicates that contact already has this phone number
-    print(change_contact(["John", "987654321"], contacts_list))
-    # Should indicate contact not found
-    print(change_contact(["Mary", "456789123"], contacts_list))
-    # Should indicate invalid arguments
-    print(change_contact(["John"], contacts_list))
-    # Should indicate invalid arguments
-    print(change_contact([], contacts_list))
-    print()
-
-    # Test show_phone
-    print('Test show_phone >>>')
-    # Should show phone number for John
-    print(show_phone(["John"], contacts_list))
-    # Should indicate contact not found
-    print(show_phone(["Mary"], contacts_list))
-    # Should indicate invalid arguments
-    print(show_phone(["John", "Mary"], contacts_list))
-    # Should indicate invalid arguments
-    print(show_phone([], contacts_list))
-    print()
-
-    # Test show_all
-    # Should show all contacts
-    print(show_all(contacts_list))
-    print()
