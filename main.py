@@ -55,6 +55,7 @@ def main() -> None:
     - 'close' or 'exit' to exit the program
     - 'hello' to greet the user
     - 'add' to add a contact
+    - 'add-email' to add an email to a contact
     - 'change' to update a contact
     - 'phone' to display a contact's phone number
     - 'all' to display all contacts
@@ -111,6 +112,9 @@ def main() -> None:
 
         elif command == "birthdays":
             print_with_newlines(handlers.birthdays(address_book))
+        
+        elif command == 'add-email':
+            print(handlers.add_email_to_contacts(args, address_book))
 
         else:
             print_with_newlines("Invalid command.")

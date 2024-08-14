@@ -56,7 +56,24 @@ def show_help() -> None:
         "- 'birthdays':         Display upcoming birthdays within 7 days.\n"
         "- 'all':               Display all contacts.\n"
         "- 'close' or 'exit':   Exit the program.\n"
+        "- 'add-email':         Add an email to an existing contact. Usage: add-email <name> <email>\n"  # Додано нову команду
+
     )
+
+@input_error
+def add_email_to_contacts(args: List[str], address_book: AddressBook) -> str:
+    if len(args) < 2:
+        return "Wrong arguments! Use command: add-email: <name> <email>"
+    
+    name_str, email_str = args
+    record = address_book.find(name_str)
+    if not record:
+        return f"No contact found with name {name_str}"
+    try:
+        record.add_email(email_str)
+        return f"Email '{email_str}' added to contact '{name_str}'."
+    except ValueError as e:
+        return str(e)
 
 @input_error
 def add_contact(args: List[str], address_book: AddressBook) -> str:
