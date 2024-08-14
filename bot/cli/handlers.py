@@ -37,14 +37,34 @@ from typing import List
 from bot.models import AddressBook, Record
 from bot.cli.input_error import input_error
 
-def show_help() -> None:
+
+def show_help() -> tuple:
     """
-    Displays a list of available commands for the assistant bot.
+    Returns a list of available commands and a formatted string for displaying them.
 
     Returns:
-    None
+    tuple: A tuple containing:
+        - A list of command strings.
+        - A formatted string listing all commands with descriptions.
     """
-    return (
+    commands = [
+        "hello: Greet the user.",
+        "help: Display this help message.",
+        "add: Add a new contact with phone or a phone to existing contact. Usage: add <name> <phone>",
+        "add-birthday: Add a new contact with birthday or a birthday to a contact. Usage: add-birthday <name> <birthday>",
+        "change: Update an existing field with new value. Usage: change <contact_name> <field name> <old_value> <new_value>",
+        "phone: Display a contact's phone number/numbers. Usage: phone <name>",
+        "show-birthday: Display a contact's birthday. Usage: show-birthday <name>",
+        "birthdays: Display upcoming birthdays within 7 days.",
+        "all: Display all contacts.",
+        "search: Display contacts that start with the entered input. Usage: search <input>",
+        "delete: Delete contact by name.",
+        "close or exit: Exit the program.",
+        "add-email: Add an email to an existing contact. Usage: add-email <name> <email>",
+        "edit-email: Edit an existing email for a contact. Usage: edit-email <name> <old_email> <new_email>"
+    ]
+
+    commands_str = (
         "Available commands:\n"
         "- 'hello':             Greet the user.\n"
         "- 'help':              Display this help message.\n"
@@ -52,21 +72,22 @@ def show_help() -> None:
         "                       Usage: add <name> <phone>\n"
         "- 'add-birthday':      Add a new contact with birthday or a birthday to a contact.\n"
         "                       Usage: add-birthday <name> <birthday>\n"
-        "- 'change':            Update an existing field with new value. Usage: change <contact_name> <field name> <old_value> <new_value>\n"
-        "                       Usage: change <name> <old_phone> <new_phone>\n"
+        "- 'change':            Update an existing field with new value.\n"
+        "                       Usage: change <contact_name> <field name> <old_value> <new_value>\n"
         "- 'phone':             Display a contact's phone number/numbers. Usage: phone <name>\n"
         "- 'show-birthday':     Display a contact's birthday. Usage: show-birthday <name>\n"
         "- 'birthdays':         Display upcoming birthdays within 7 days.\n"
         "- 'all':               Display all contacts.\n"
-        "- 'search':            Display contacts that starts with entered input.\n"
+        "- 'search':            Display contacts that start with the entered input.\n"
         "                       Usage: search <input>\n"
         "- 'delete':            Delete contact by name.\n"
         "- 'close' or 'exit':   Exit the program.\n"
         "- 'add-email':         Add an email to an existing contact. Usage: add-email <name> <email>\n"  
-        "- 'edit-email':        Edit an existing email for a contact. Usage: edit-email <name> <old_email> <new_email>\n" 
-        
-
+        "- 'edit-email':        Edit an existing email for a contact. Usage: edit-email <name> <old_email> <new_email>\n"  
     )
+    
+    return commands, commands_str
+
 
 #------------------------------------------------------------------
 

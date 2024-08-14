@@ -46,6 +46,10 @@ from bot.cli import handlers
 from bot.cli.data_manager import load_data, save_data
 from bot.cli.parse_input import parse_input
 from bot.utils import print_with_newlines
+from bot.cli.commands_completer import completer, history
+from prompt_toolkit import prompt
+from prompt_toolkit.shortcuts import CompleteStyle
+
 
 def main() -> None:
     """
@@ -69,9 +73,9 @@ def main() -> None:
 
     print_with_newlines("Welcome to the assistant bot!")
     print_with_newlines("Type 'help' to see a list of available commands.", lines_before = 0)
-
+    
     while True:
-        user_input: str = input("Enter a command: ")
+        user_input: str = prompt("Enter a command: ", completer=completer, complete_style=CompleteStyle.COLUMN, history=history)
 
         if not user_input:
             continue
@@ -86,7 +90,8 @@ def main() -> None:
             break
 
         if command == "help":
-            print_with_newlines(handlers.show_help())
+            _, commands_str = handlers.show_help()
+            print_with_newlines(commands_str)
 
         elif command == "hello":
             print_with_newlines("How can I help you?")
