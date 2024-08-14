@@ -25,8 +25,11 @@ Example:
 """
 
 from datetime import datetime, timedelta, date
-from typing import List, Dict, Optional
+from typing import Optional
 from collections import UserDict
+from io import StringIO
+from rich.table import Table
+from rich.console import Console
 
 from bot.models.birthday import Birthday
 
@@ -144,16 +147,28 @@ class AddressBook(UserDict):
 
         return date_obj
 
-    def get_upcoming_birthdays(self) -> str:
+    def get_upcoming_birthdays(self, days: int) -> str:
         """
-        Returns a formatted string of upcoming birthdays within the next 7 days.
+        Returns a formatted string of upcoming birthdays within the next specified number of days.
 
         Returns:
             str: A formatted string containing the name and birthday date of contacts
-                with upcoming birthdays.
+                with upcoming birthdays, displayed as a table.
         """
-        upcoming_birthdays_list = []
-        days = 7
+        table = Table(
+            title=f"Upcoming Birthdays within {days} Days",
+            title_style="bold orange1",
+            border_style="gray50",
+            padding=(0, 2),
+            show_header=True,
+            show_lines=True,
+            header_style="bold cyan"
+        )
+
+        table.add_column("Name\n", style="dark_orange", width=20)
+        table.add_column("Congratulation Date", style="sky_blue3", justify="center", width=15)
+        table.add_column("Phone\n", style="sky_blue3", justify="center", width=15)
+
 
         today_date = datetime.now().date()
 
@@ -173,15 +188,25 @@ class AddressBook(UserDict):
                             congratulation_date = birthday_this_year
 
                         congratulation_date = self._adjust_to_weekday(congratulation_date)
+                        phone_number = record.phones[0].value if record.phones else '---'
 
-                        upcoming_birthdays_list.append(
-                            f"Contact name: {record.name.value}, birthday: {congratulation_date.strftime('%d.%m.%Y')}"
+                        table.add_row(
+                            record.name.value,
+                            congratulation_date.strftime('%d.%m.%Y'),
+                            phone_number
                         )
 
                 except ValueError:
                     pass
 
-        return "\n".join(upcoming_birthdays_list)
+        console = Console()
+        with StringIO() as buf:
+            console.file = buf
+            console.print(table)
+            table_output = buf.getvalue()
+
+        return table_output
+
 
     def __str__(self) -> str:
         """

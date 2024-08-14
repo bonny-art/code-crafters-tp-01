@@ -9,8 +9,12 @@
 
 import pickle
 from bot.models.address_book import AddressBook
+import os
 
-def save_data(book: AddressBook, filename: str = "addressbook.pkl") -> None:
+
+file_path = os.path.abspath("tmp/addressbook.pkl")
+
+def save_data(book: AddressBook, filename: str = file_path) -> None:
     """
     Зберігає об'єкт адресної книги у файл за допомогою pickle.
 
@@ -21,10 +25,14 @@ def save_data(book: AddressBook, filename: str = "addressbook.pkl") -> None:
     Повертає:
     - None: Функція не повертає значення.
     """
-    with open(filename, "wb") as f:
-        pickle.dump(book, f)
+    try:
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        with open(filename, "wb") as f:
+            pickle.dump(book, f)
+    except Exception as ex:
+        print(f"An error occurred while saving data: {ex}")
 
-def load_data(filename: str = "addressbook.pkl") -> AddressBook:
+def load_data(filename: str = file_path) -> AddressBook:
     """
     Завантажує об'єкт адресної книги з файлу за допомогою pickle.
 
@@ -41,3 +49,5 @@ def load_data(filename: str = "addressbook.pkl") -> AddressBook:
             return pickle.load(f)
     except FileNotFoundError:
         return AddressBook()
+    except Exception as ex:
+            print(f"An error occurred while loading data: {ex}")

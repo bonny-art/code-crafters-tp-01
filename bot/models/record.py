@@ -12,26 +12,117 @@ from typing import List, Optional
 from .name import Name
 from .phone import Phone
 from .birthday import Birthday
+from .email import Email
+from .address import Address
 
 class Record:
     """
     Represents a contact record with a name and a list of phone numbers.
-
+    
     Attributes:
     - name (Name): The contact's name.
     - phones (List[Phone]): A list of the contact's phone numbers.
+    - emails (List[Email]): A list of the contact's email addresses.
     """
-
+    
     def __init__(self, name: str) -> None:
         """
         Initializes a new Record instance with a name.
-
+        
         Args:
         - name (str): The name of the contact.
         """
         self.name = Name(name)
         self.phones: List[Phone] = []
+        self.emails: List[Email] = []  
         self.birthday = None
+        self.address = None
+
+    #----AndrGR-----------------------------------------------------------------
+    def add_email(self, email_address: str) -> None:
+        print(f"Adding email: {email_address}")
+        
+        if not hasattr(self, 'emails'):
+            self.emails = []
+            
+        email = Email(email_address)
+        self.emails.append(email)
+
+    # def add_email(self, email_address: str) -> None:
+    #     print(f"Adding email: {email_address}")
+    #     print(f"Current attributes: {dir(self)}")  # Debugging line
+    #     print(self.emails)
+    #     email = Email(email_address)
+    #     self.emails.append(email)
+
+
+    def remove_email(self, email_address:str) -> None:
+        """
+        Removes an email address from the contact's list of emails.
+
+        Args:
+        - email_address (str): The email address to remove.
+        """
+        self.emails = [e for e in self.emails if e.address != email_address]
+
+    def edit_email(self, old_email:str, new_email:str) -> None:
+        """
+        Replaces an old email address with a new one in the contact's list.
+
+        Args:
+        - old_email_address (str): The email address to replace.
+        - new_email_address (str): The new email address to add.
+        """
+        self.add_email(new_email)
+        self.remove_email(old_email)
+
+    def find_email(self, email_address:str) -> Optional[Email]:
+        """
+        Finds and returns an email address from the contact's list.
+
+        Args:
+        - email_address (str): The email address to find.
+
+        Returns:
+        - Email or None: The Email instance if found, otherwise None.
+        """
+        for email in self.emails:
+            if email.address == email_address:
+                return email
+        return None
+    
+    #__________________________________________________________________________
+
+    def add_address(self, address_str: str) -> None:
+        """
+        Adds an address to the contact record.
+        
+        Args:
+        - address_str (str): The address to set.
+        """
+        self.address = Address(address_str)
+
+    def edit_address(self, new_address_str: str) -> None:
+        """
+        Edits the contact's address.
+        
+        Args:
+        - new_address_str (str): The new address to set.
+        """
+        self.address = Address(new_address_str)
+
+    def get_address(self) -> Optional[str]:
+        """
+        Gets the contact's address.
+        
+        Returns:
+        - str or None: The address string if set, otherwise None.
+        """
+        return self.address.value if hasattr(self, 'address') else None
+
+
+    #----AndrGR-----------------------------------------------------------------
+
 
     def add_phone(self, phone_number: str) -> None:
         """
@@ -63,6 +154,33 @@ class Record:
 
         self.add_phone(new_phone_number)
         self.remove_phone(old_phone_number)
+
+
+    def edit_field(self, field: str, old_value:str, new_value: str) -> str:
+        """
+        Edits a specific field of the contact record.
+
+        Args:
+        - field (str): The field to edit ('name', 'phone', or 'birthday').
+        - new_value (str): The new value for the field.
+
+        Returns:
+        - str: A message indicating the result of the edit.
+        """
+        if field == 'name':
+            self.name = Name(new_value)
+        elif field == 'phones':
+            if self.phones:
+                old_phone = old_value
+                self.edit_phone(old_phone, new_value)
+            else:
+                self.add_phone(new_value)
+        elif field == 'birthday':
+            self.birthday = Birthday(new_value)
+        else:
+            return f"Unknown field '{field}'. Available fields: name, phone, birthday."
+        
+        return f"Field '{field}' has been updated to '{new_value}'."
 
     def find_phone(self, phone_number: str) -> Optional[Phone]:
         """
@@ -102,6 +220,8 @@ class Record:
             return "No birthday set"
         return f"{self.name.value}'s birthday is on {self.birthday.value.strftime('%d.%m.%Y')}"
 
+
+
     def __str__(self) -> str:
         """
         Returns a string representation of the contact record.
@@ -113,9 +233,16 @@ class Record:
         if not phones_str:
             phones_str = "----------"
 
+        if hasattr(self, 'emails'): 
+            emails_str = '; '.join(e.address for e in self.emails)
+        else:
+            emails_str = "----------"
+
+        address_str = self.get_address() or "----------"
+
         if self.birthday:
             birthday_str = self.birthday.value.strftime("%d.%m.%Y")
         else:
             birthday_str = "----------"
 
-        return f"Contact name: {self.name.value}, birthday: {birthday_str}, phones: {phones_str}"
+        return f"Contact name: {self.name.value}, birthday: {birthday_str}, phones: {phones_str}, emails: {emails_str}, address: {address_str}"
