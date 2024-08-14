@@ -81,7 +81,7 @@ def main() -> None:
         command, *args = parse_input(user_input)
 
         if command in ["close", "exit"]:
-            save_data(address_book)
+            (address_book)
             print_with_newlines("Good bye!")
             break
 
@@ -110,7 +110,10 @@ def main() -> None:
             print_with_newlines(handlers.show_birthday(args, address_book))
 
         elif command == "birthdays":
-            print_with_newlines(handlers.birthdays(address_book))
+            print_with_newlines(handlers.birthdays(args, address_book))
+
+        elif command == "delete":
+            print_with_newlines(handlers.delete_contact(args, address_book))
 
         else:
             print_with_newlines("Invalid command.")

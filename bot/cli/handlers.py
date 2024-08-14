@@ -49,15 +49,139 @@ def show_help() -> None:
         "                       Usage: add <name> <phone>\n"
         "- 'add-birthday':      Add a new contact with birthday or a birthday to a contact.\n"
         "                       Usage: add-birthday <name> <birthday>\n"
-        "- 'change':            Update an existing phone number in existing contact.\n"
+        "- 'change':            Update an existing field with new value. Usage: change <contact_name> <field name> <old_value> <new_value>\n"
         "                       Usage: change <name> <old_phone> <new_phone>\n"
         "- 'phone':             Display a contact's phone number/numbers. Usage: phone <name>\n"
         "- 'show-birthday':     Display a contact's birthday. Usage: show-birthday <name>\n"
         "- 'birthdays':         Display upcoming birthdays within 7 days.\n"
         "- 'all':               Display all contacts.\n"
+        "- 'delete':            Delete contact by name.\n"
         "- 'close' or 'exit':   Exit the program.\n"
+        "- 'add-email':         Add an email to an existing contact. Usage: add-email <name> <email>\n"  
+        "- 'edit-email':        Edit an existing email for a contact. Usage: edit-email <name> <old_email> <new_email>\n" 
+        
+
     )
 
+#------------------------------------------------------------------
+
+@input_error
+def add_email_to_contacts(args: List[str], address_book: AddressBook) -> str:
+    if len(args) < 2:
+        return "Wrong arguments! Use command: add-email: <name> <email>"
+    
+    name_str, email_str = args
+    record = address_book.find(name_str)
+    if not record:
+        return f"No contact found with name {name_str}"
+    try:
+        record.add_email(email_str)
+        return f"Email '{email_str}' added to contact '{name_str}'."
+    except ValueError as e:
+        return str(e)
+    
+@input_error
+def edit_contact_email(args: List[str], address_book: AddressBook) -> str:
+    """
+    Edit an existing email address of a contact in the address book.
+
+    Parameters:
+    args (List[str]): List of arguments containing name, old email address, and new email address.
+    address_book (AddressBook): The address book where the contact exists.
+
+    Returns:
+    str: Success or error message indicating whether the email was updated
+    successfully, or if it was not found, or if the old email address was not found.
+    """
+    if len(args) < 3:
+        return "Insufficient arguments. Usage: edit-email <name> <old_email> <new_email>"
+
+    name_str, old_email_str, new_email_str = args
+    record = address_book.find(name_str)
+
+    if not record:
+        return f"No contact found with name {name_str}."
+
+    if not record.find_email(old_email_str):
+        return f"No email address {old_email_str} found for contact {name_str}."
+
+    try:
+        record.edit_email(old_email_str, new_email_str)
+        return f"Email address updated for contact {name_str}."
+    except ValueError as e:
+        return str(e)
+
+@input_error
+def remove_email_from_contact(args: List[str], address_book: AddressBook) -> str:
+    """
+    Remove an email address from a contact in the address book.
+
+    Parameters:
+    args (List[str]): List of arguments containing the name and the email address to remove.
+    address_book (AddressBook): The address book where the contact exists.
+
+    Returns:
+    str: Success or error message indicating whether the email was removed
+    successfully, or if the contact or email address was not found.
+    """
+    if len(args) < 2:
+        return "Insufficient arguments. Usage: remove-email <name> <email>"
+
+    name_str, email_str = args
+    record = address_book.find(name_str)
+
+    if not record:
+        return f"No contact found with name {name_str}."
+
+    if not record.find_email(email_str):
+        return f"No email address {email_str} found for contact {name_str}."
+
+    record.remove_email(email_str)
+    return f"Email address '{email_str}' removed from contact '{name_str}'."
+
+
+@input_error
+def add_address_to_contact(args: List[str], address_book: AddressBook) -> str:
+    if len(args) < 2:
+        return "Insufficient arguments. Usage: add-address <name> <address>"
+    
+    name_str = args[0]
+    address_str = ' '.join(args[1:])
+
+    name_str, address_str = args
+    record = address_book.find(name_str)
+    
+    if not record:
+        return f"No contact found with name {name_str}."
+    
+    try:
+        record.add_address(address_str)
+        return f"Address '{address_str}' added to contact '{name_str}'."
+    except ValueError as e:
+        return str(e)
+
+@input_error
+def edit_contact_address(args: List[str], address_book: AddressBook) -> str:
+    if len(args) < 2:
+        return "Insufficient arguments. Usage: edit-address <name> <new_address>"
+    
+    name_str, new_address_str = args
+    record = address_book.find(name_str)
+    
+    if not record:
+        return f"No contact found with name {name_str}."
+    
+    try:
+        record.edit_address(new_address_str)
+        return f"Address updated for contact {name_str}."
+    except ValueError as e:
+        return str(e)
+
+
+
+
+
+#------------------------------------------------------------------
 @input_error
 def add_contact(args: List[str], address_book: AddressBook) -> str:
     """
@@ -92,30 +216,57 @@ def add_contact(args: List[str], address_book: AddressBook) -> str:
 @input_error
 def change_contact(args: List[str], address_book: AddressBook) -> str:
     """
-    Update the phone number of an existing contact in the address book.
+ Edits a contact's information in the address book.
 
     Parameters:
-    args (List[str]): List of arguments containing name, old phone number, and new phone number.
+    args (List[str]): List of arguments containing the contact name, the field to edit 
+                      (e.g., 'name', 'phone', 'birthday'), and the new value.
     address_book (AddressBook): The address book where the contact exists.
 
     Returns:
-    str: Success or error message indicating whether the contact was updated
-    successfully, or if it was not found, or if the old phone number was not found.
+    str: Success or error message indicating whether the contact was updated successfully,
+         or if the contact was not found, or if the specified field is unknown.
     """
     if len(args) < 3:
-        return "Insufficient arguments. Usage: change <name> <old_phone> <new_phone>"
+        return "Usage: edit <name> <field> <new_value>"
 
-    name_str, old_phone_str, new_phone_str = args
-    record = address_book.find(name_str)
+    contact_name, field, old_value, new_value = args[0], args[1], args[2], args[3]
+    
+    if contact_name not in address_book:
+        return f"Contact '{contact_name}' not found."
+    
+    record = address_book[contact_name]
+    result = record.edit_field(field, old_value, new_value)
+    
+    if field == 'name':
+        # Handle renaming by updating the key in the address book
+        address_book[new_value] = record
+        del address_book[contact_name]
+    
+    return result
 
-    if not record:
-        return f"No contact found with name {name_str}."
+@input_error
+def delete_contact(args: List[str], address_book: AddressBook) -> str:
+    """
+    Deletes a contact from the address book.
 
-    if not record.find_phone(old_phone_str):
-        return f"No phone number {old_phone_str} found for contact {name_str}."
+    Args:
+        args: List containing the contact name to delete.
+        address_book: The AddressBook instance to delete the contact from.
 
-    record.edit_phone(old_phone_str, new_phone_str)
-    return "Contact updated."
+    Returns:
+        str: A message indicating the result of the deletion.
+    """
+    if len(args) < 1:
+        return "Please provide the name of the contact to delete."
+    
+    contact_name = args[0]
+    
+    if contact_name in address_book:
+        address_book.delete(contact_name)
+        return f"Contact '{contact_name}' has been deleted."
+    else:
+        return f"Contact '{contact_name}' not found."
 
 @input_error
 def show_phone(args: List[str], address_book: AddressBook) -> str:
@@ -186,6 +337,7 @@ def add_birthday(args: List[str], address_book: AddressBook) -> str:
     address_book.add_record(record)
     return "Contact with birthday added."
 
+
 @input_error
 def show_birthday(args: List[str], address_book: AddressBook) -> str:
     """
@@ -211,7 +363,7 @@ def show_birthday(args: List[str], address_book: AddressBook) -> str:
     return record.show_birthday()
 
 @input_error
-def birthdays(address_book: AddressBook) -> str:
+def birthdays(args: List[str], address_book: AddressBook) -> str:
     """
     Retrieve a list of upcoming birthdays from the address book.
 
@@ -221,61 +373,17 @@ def birthdays(address_book: AddressBook) -> str:
     Returns:
     str: A list of upcoming birthdays or a message indicating there are no contacts.
     """
+    if len(args) == 0:
+        days = 7
+    elif len(args) > 1:
+        return "Too many arguments. Usage: show-birthday <days>"
+    else:
+        try:
+            days = int(args[0])
+        except ValueError:
+            return "The number of days must be an integer. Usage: show-birthday <days>"
+
     if not address_book.data:
         return "No contacts."
 
-    return address_book.get_upcoming_birthdays()
-
-
-if __name__ == "__main__":
-    print()
-
-    contacts_list = AddressBook()
-
-    # Test show_all
-    # Should show all contacts
-    print(show_all(contacts_list))
-    print()
-
-    # Test add_contact
-    print('Test add_contact >>>')
-    # Should add contact successfully
-    print(add_contact(["John", "123456789"], contacts_list))
-    # Should indicate contact already exists
-    print(add_contact(["John", "987654321"], contacts_list))
-    # Should indicate invalid arguments
-    print(add_contact(["John"], contacts_list))
-    # Should indicate invalid arguments
-    print(add_contact([], contacts_list))
-    print()
-
-    # Test change_contact
-    print('Test change_contact >>>')
-    # Should update contact successfully
-    print(change_contact(["John", "987654321"], contacts_list))
-    # Indicates that contact already has this phone number
-    print(change_contact(["John", "987654321"], contacts_list))
-    # Should indicate contact not found
-    print(change_contact(["Mary", "456789123"], contacts_list))
-    # Should indicate invalid arguments
-    print(change_contact(["John"], contacts_list))
-    # Should indicate invalid arguments
-    print(change_contact([], contacts_list))
-    print()
-
-    # Test show_phone
-    print('Test show_phone >>>')
-    # Should show phone number for John
-    print(show_phone(["John"], contacts_list))
-    # Should indicate contact not found
-    print(show_phone(["Mary"], contacts_list))
-    # Should indicate invalid arguments
-    print(show_phone(["John", "Mary"], contacts_list))
-    # Should indicate invalid arguments
-    print(show_phone([], contacts_list))
-    print()
-
-    # Test show_all
-    # Should show all contacts
-    print(show_all(contacts_list))
-    print()
+    return address_book.get_upcoming_birthdays(days)
