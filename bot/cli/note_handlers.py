@@ -16,23 +16,9 @@ from typing import List
 from bot.models import NoteBook, Note
 from bot.cli.input_error import input_error
 
-@input_error
+# @input_error
 def add_note(args: List[str], note_book: NoteBook) -> str:
-    if len(args) < 2:
-        return "Insufficient arguments. Usage: add <name> <phone>"
-
-    name_str, phone_str = args
-
-    note = note_book.find(name_str)
-
-    if note:
-        if note.find_phone(phone_str):
-            return f"Note {name_str} already has this note."
-        note.add_phone(phone_str)
-        return f"Phone number added to existing note {name_str}."
-
-    note = Note(name_str)
-    note.add_phone(phone_str)
+    note = Note(" ".join(args))
     note_book.add_note(note)
     return "Note added."
 

@@ -16,3 +16,9 @@ class Note:
 	def remove_tag(self, tag):
 		if tag in self.tags:
 			self.tags.remove(tag)
+
+	def __str__(self):
+		s = f"{self.id} | {self.create_date.strftime("%Y-%m-%d %H:%M:%S")} | {self.text}"
+		if self.tags:
+			s += f" ({', '.join(self.tags)})"
+		return s

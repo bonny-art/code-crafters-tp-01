@@ -8,7 +8,8 @@
 """
 
 import pickle
-from . import NoteBook
+from bot.models.note_book import NoteBook
+import os
 
 def save_data(book: NoteBook, filename: str = "notebook.pkl") -> None:
     """
