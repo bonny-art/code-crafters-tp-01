@@ -1,10 +1,9 @@
-import itertools
+import uuid
 from datetime import datetime
 
 class Note:
-	_id_counter = itertools.count(1)
 	def __init__(self, text, tags=None):
-		self.id = next(Note._id_counter)
+		self.id = str(uuid.uuid4())
 		self.create_date = datetime.now()
 		self.text = text
 		self.tags = tags if tags else []

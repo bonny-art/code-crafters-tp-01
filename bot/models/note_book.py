@@ -15,8 +15,11 @@ class NoteBook(UserDict):
 		if 0 <= index < len(self.data):
 			del self.data[index]
 
-	def search_notes(self, keyword):
-		return [note for note in self.data if keyword in note.text]
+	def find_notes(self, keyword):
+		notes = [note for note in self.data.values() if keyword in note.text]
+		if notes:
+			return "\n".join(str(n) for n in notes)
+		return "No notes found."
 
 	def search_by_tag(self, tag):
 		return [note for note in self.data if tag in note.tags]
@@ -43,7 +46,7 @@ if __name__ == "__main__":
 		print(note.id, note.create_date, note.text, note.tags)
 
 	print("\nSearch for 'Second' note:")
-	for note in manager.search_notes("Second"):
+	for note in manager.find_notes("Second"):
 		print(note.id, note.create_date, note.text, note.tags)
 
 	print("\nSort by tag:")
