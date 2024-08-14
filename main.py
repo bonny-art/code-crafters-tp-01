@@ -81,7 +81,7 @@ def main() -> None:
         command, *args = parse_input(user_input)
 
         if command in ["close", "exit"]:
-            (address_book)
+            save_data(address_book)
             print_with_newlines("Good bye!")
             break
 
