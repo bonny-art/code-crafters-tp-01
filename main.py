@@ -112,7 +112,7 @@ def main() -> None:
         elif command == "birthdays":
             print_with_newlines(handlers.birthdays(address_book))
 
-        elif command == "delete-contact":
+        elif command == "delete":
             print_with_newlines(handlers.delete_contact(args, address_book))
 
         else:
