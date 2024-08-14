@@ -75,7 +75,7 @@ class AddressBook(UserDict):
         """
         return self.data.get(name, None)
     
-    def search_in_fields(self, input: str) -> Optional[List[str]]:
+    def search_in_fields(self, input: str) -> Optional[list[str]]:
         """
         Search through name, phones, birthday fields and returns a list of matching records
 
