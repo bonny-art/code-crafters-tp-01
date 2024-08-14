@@ -15,6 +15,9 @@ Functions:
 - show_all(address_book: AddressBook) -> str:
   Retrieves all contacts stored in the address book.
 
+- search(args: List[str], address_book: AddressBook) -> str:
+  Searchs through contacts fields stored in the address book.
+
 - add_birthday(args: List[str], address_book: AddressBook) -> str:
   Adds a birthday to a contact or creates a new contact with the birthday.
 
@@ -55,6 +58,8 @@ def show_help() -> None:
         "- 'show-birthday':     Display a contact's birthday. Usage: show-birthday <name>\n"
         "- 'birthdays':         Display upcoming birthdays within 7 days.\n"
         "- 'all':               Display all contacts.\n"
+        "- 'search':            Display contacts that starts with entered input.\n"
+        "                       Usage: search <input>\n"
         "- 'delete':            Delete contact by name.\n"
         "- 'close' or 'exit':   Exit the program.\n"
         "- 'add-email':         Add an email to an existing contact. Usage: add-email <name> <email>\n"  
@@ -387,3 +392,21 @@ def birthdays(args: List[str], address_book: AddressBook) -> str:
         return "No contacts."
 
     return address_book.get_upcoming_birthdays(days)
+
+@input_error
+def search(args: List[str], address_book: AddressBook) -> str:
+    """
+    Search in all the fields of each contacts stored in the address book.
+
+    Parameters:
+    args (List[str]): List of arguments containing the input.
+    address_book (AddressBook): The address book containing contacts.
+
+    Returns:
+    str: All contacts that matche the passed input or a message indicating it's empty.
+    """
+    input = args[0]
+    matches = address_book.search_in_fields(input.lower())
+    if not matches:
+        return "No matches found."
+    return str(matches)

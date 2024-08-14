@@ -118,7 +118,7 @@ class Record:
         Returns:
         - str or None: The address string if set, otherwise None.
         """
-        return self.address.value if hasattr(self, 'address') else None
+        return self.address.value if self.address else None
 
 
     #----AndrGR-----------------------------------------------------------------

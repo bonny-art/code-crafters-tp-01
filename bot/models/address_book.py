@@ -31,6 +31,8 @@ from io import StringIO
 from rich.table import Table
 from rich.console import Console
 
+from bot.models.birthday import Birthday
+
 from .record import Record
 
 class AddressBook(UserDict):
@@ -72,6 +74,29 @@ class AddressBook(UserDict):
             Optional[Record]: The found record or None if not found.
         """
         return self.data.get(name, None)
+    
+    def search_in_fields(self, input: str) -> Optional[list[str]]:
+        """
+        Search through name, phones, birthday fields and returns a list of matching records
+
+        Args:
+            input(str): the str value to search through all fields.
+            
+        Returns:
+            Optional[List[Record]]: The found records list or None if not found.
+        """
+        matching_records = []
+        for record in self.data.values():
+            matches = [record.name and record.name.value.lower().startswith(input),
+                       record.phones and any(phone.value.lower().startswith(input) for phone in record.phones),
+                       type(record.birthday) == Birthday and record.birthday.value.strftime('%d.%m.%Y').startswith(input)]
+            if any(matches):
+                matching_records.append(str(record))
+        if len(matching_records) > 0:
+            return matching_records
+        else:
+            return None
+
 
     def delete(self, name: str) -> None:
         """
