@@ -32,8 +32,8 @@ class Record:
         """
         self.name = Name(name)
         self.phones: List[Phone] = []
-        self.emails: List[Email] = []
         self.birthday = None
+        self.emails: List[Email] = []
 
     #----AndrGR-----------------------------------------------------------------
     
@@ -48,7 +48,9 @@ class Record:
     #     self.emails.append(email)
 
     def add_email(self, email_address: str) -> None:
+        print(f"Adding email: {email_address}")
         print(f"Current attributes: {dir(self)}")  # Debugging line
+        print(self.emails)
         email = Email(email_address)
         self.emails.append(email)
 
