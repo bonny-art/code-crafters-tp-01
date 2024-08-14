@@ -18,6 +18,8 @@ from bot.cli.input_error import input_error
 
 @input_error
 def add_note(args: List[str], note_book: NoteBook) -> str:
+    if len(args) == 0:
+        raise ValueError("No note text provided.")
     note = Note(" ".join(args))
     note_book.add_note(note)
     return "Note added."
@@ -39,9 +41,9 @@ def show_all_notes(note_book: NoteBook) -> str:
     return str(note_book)
 
 @input_error
-def find_note(args: List[str], note_book: NoteBook) -> str:
+def search_note(args: List[str], note_book: NoteBook) -> str:
     search = " ".join(args)
-    return note_book.find_notes(search)
+    return note_book.search_notes(search)
 
 if __name__ == "__main__":
     print()

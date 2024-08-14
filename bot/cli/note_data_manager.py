@@ -11,7 +11,9 @@ import pickle
 from bot.models.note_book import NoteBook
 import os
 
-def save_data(book: NoteBook, filename: str = "notebook.pkl") -> None:
+file_path = os.path.abspath("tmp/notebook.pkl")
+
+def save_data(book: NoteBook, filename: str = file_path) -> None:
     """
     Зберігає об'єкт адресної книги у файл за допомогою pickle.
 
@@ -25,7 +27,7 @@ def save_data(book: NoteBook, filename: str = "notebook.pkl") -> None:
     with open(filename, "wb") as f:
         pickle.dump(book, f)
 
-def load_data(filename: str = "notebook.pkl") -> NoteBook:
+def load_data(filename: str = file_path) -> NoteBook:
     """
     Завантажує об'єкт адресної книги з файлу за допомогою pickle.
 

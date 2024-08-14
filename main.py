@@ -129,8 +129,8 @@ def main() -> None:
         elif command == "all-notes":
             print_with_newlines(note_handlers.show_all_notes(note_list))
 
-        elif command == "find-note":
-            print_with_newlines(note_handlers.find_note(args, note_list))
+        elif command == "search-note":
+            print_with_newlines(note_handlers.search_note(args, note_list))
 
         else:
             print_with_newlines("Invalid command.")
