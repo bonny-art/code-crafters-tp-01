@@ -106,9 +106,6 @@ def main() -> None:
         elif command == "search":
             print_with_newlines(handlers.search(args, address_book))
 
-        elif command == "add-birthday":
-            print_with_newlines(handlers.add_birthday(args, address_book))
-
         elif command == "show-birthday":
             print_with_newlines(handlers.show_birthday(args, address_book))
 
