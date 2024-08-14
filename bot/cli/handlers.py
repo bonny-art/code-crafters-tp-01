@@ -64,6 +64,15 @@ def show_help() -> None:
         "- 'close' or 'exit':   Exit the program.\n"
         "- 'add-email':         Add an email to an existing contact. Usage: add-email <name> <email>\n"  
         "- 'edit-email':        Edit an existing email for a contact. Usage: edit-email <name> <old_email> <new_email>\n" 
+        "- 'all-notes':         Display all notes.\n"        
+        "- 'add-note':          Add a new note\n"
+        "                       Usage: add-note <note text>\n"
+        "- 'search-note':       Display notes that contains input.\n"
+        "                       Usage: search-note <input>\n"
+        "- 'delete-note':       Delete contact by Id.\n"
+        "                       Usage: delete-note <id>\n"
+        "- 'change-note':       Update an existing note with new text.\n"
+        "                       Usage: change-note <id> <new_text>\n"
         
 
     )

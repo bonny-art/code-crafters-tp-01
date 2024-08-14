@@ -38,3 +38,6 @@ from .phone import Phone
 from .birthday import Birthday
 from .record import Record
 from .address_book import AddressBook
+
+from .note import Note
+from .note_book import NoteBook
