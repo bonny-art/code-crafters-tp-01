@@ -17,42 +17,41 @@ from .email import Email
 class Record:
     """
     Represents a contact record with a name and a list of phone numbers.
-
+    
     Attributes:
     - name (Name): The contact's name.
     - phones (List[Phone]): A list of the contact's phone numbers.
+    - emails (List[Email]): A list of the contact's email addresses.
     """
-
+    
     def __init__(self, name: str) -> None:
         """
         Initializes a new Record instance with a name.
-
+        
         Args:
         - name (str): The name of the contact.
         """
         self.name = Name(name)
         self.phones: List[Phone] = []
+        self.emails: List[Email] = []  
         self.birthday = None
-        self.emails: List[Email] = []
 
     #----AndrGR-----------------------------------------------------------------
-    
-    # def add_email(self, email_address:str) -> None:
-    #     """
-    #     Adds an email address to the contact's list of emails.
-
-    #     Args:
-    #     - email_address (str): The email address to add.
-    #     """
-    #     email = Email(email_address)
-    #     self.emails.append(email)
-
     def add_email(self, email_address: str) -> None:
         print(f"Adding email: {email_address}")
-        print(f"Current attributes: {dir(self)}")  # Debugging line
-        print(self.emails)
+        
+        if not hasattr(self, 'emails'):
+            self.emails = []
+            
         email = Email(email_address)
         self.emails.append(email)
+
+    # def add_email(self, email_address: str) -> None:
+    #     print(f"Adding email: {email_address}")
+    #     print(f"Current attributes: {dir(self)}")  # Debugging line
+    #     print(self.emails)
+    #     email = Email(email_address)
+    #     self.emails.append(email)
 
 
     def remove_email(self, email_address:str) -> None:
@@ -175,8 +174,8 @@ class Record:
         if not phones_str:
             phones_str = "----------"
 
-        if hasattr(self, 'emails'):  # Перевірка на наявність атрибуту 'emails' перед використанням
-            emails_str = '; '.join(e.value for e in self.emails)
+        if hasattr(self, 'emails'): 
+            emails_str = '; '.join(e.address for e in self.emails)
         else:
             emails_str = "----------"
 

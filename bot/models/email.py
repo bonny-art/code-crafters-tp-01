@@ -16,7 +16,8 @@ class Email(Field):
             Initializes a new Email instance with validation.
     """
 
-    def __init__(self, value: str) -> None:
+    def __init__(self, address: str) -> None:
+        self.address = address
         """
         Initializes a new Email instance with a given value, ensuring it is a valid email address.
 
@@ -26,11 +27,11 @@ class Email(Field):
         Raises:
             ValueError: If the email address does not match the pattern.
         """
-        # Correct regex pattern for email validation
+        
         email_pattern = r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+'
         
-        if not re.fullmatch(email_pattern, value):
+        if not re.fullmatch(email_pattern, address):
             raise ValueError('Invalid email format')
         
-        # Initialize the base class with the validated email value
-        super().__init__(value)
+        
+        
