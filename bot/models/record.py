@@ -12,6 +12,7 @@ from typing import List, Optional
 from .name import Name
 from .phone import Phone
 from .birthday import Birthday
+from .email import Email
 
 class Record:
     """
@@ -31,7 +32,58 @@ class Record:
         """
         self.name = Name(name)
         self.phones: List[Phone] = []
+        self.emails = List[Email] = []
         self.birthday = None
+
+    #----AndrGR-----------------------------------------------------------------
+    
+    def add_email(self, email_address:str) -> None:
+        """
+        Adds an email address to the contact's list of emails.
+
+        Args:
+        - email_address (str): The email address to add.
+        """
+        email = Email(email_address)
+        self.emails.append(email)
+
+    def remove_email(self, email_address:str) -> None:
+        """
+        Removes an email address from the contact's list of emails.
+
+        Args:
+        - email_address (str): The email address to remove.
+        """
+        self.emails = [e for e in self.emails if e.value != email_address]
+
+    def edit_email(self, old_email:str, new_email:str) -> None:
+        """
+        Replaces an old email address with a new one in the contact's list.
+
+        Args:
+        - old_email_address (str): The email address to replace.
+        - new_email_address (str): The new email address to add.
+        """
+        self.add_email(new_email)
+        self.remove_email(old_email)
+
+    def find_email(self, email_address:str) -> Optional[Email]:
+        """
+        Finds and returns an email address from the contact's list.
+
+        Args:
+        - email_address (str): The email address to find.
+
+        Returns:
+        - Email or None: The Email instance if found, otherwise None.
+        """
+        for email in self.emails:
+            if email.value == email_address:
+                return email
+        return None
+
+    #----AndrGR-----------------------------------------------------------------
+
 
     def add_phone(self, phone_number: str) -> None:
         """
