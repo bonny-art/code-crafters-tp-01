@@ -140,9 +140,9 @@ class AddressBook(UserDict):
             header_style="bold cyan"
         )
 
-        table.add_column("Name", style="dark_orange", width=20)
-        table.add_column("Birthday", style="sky_blue3", justify="center", width=15)
-        table.add_column("Phone", style="sky_blue3", justify="center", width=15)
+        table.add_column("Name\n", style="dark_orange", width=20)
+        table.add_column("Congratulation Date", style="sky_blue3", justify="center", width=15)
+        table.add_column("Phone\n", style="sky_blue3", justify="center", width=15)
 
 
         today_date = datetime.now().date()
