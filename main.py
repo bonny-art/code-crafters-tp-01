@@ -132,6 +132,9 @@ def main() -> None:
         elif command == "search-note":
             print_with_newlines(note_handlers.search_note(args, note_list))
 
+        elif command == "delete-note":
+            print_with_newlines(note_handlers.delete_note(args, note_list))
+            
         else:
             print_with_newlines("Invalid command.")
 

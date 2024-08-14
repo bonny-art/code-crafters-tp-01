@@ -16,8 +16,7 @@ class NoteBook(UserDict):
 			self.data[index].text = new_text
 
 	def delete_note (self, index):
-		if 0 <= index < len(self.data):
-			del self.data[index]
+		del self.data[index]
 
 	def search_notes(self, keyword):
 		if not self.data:

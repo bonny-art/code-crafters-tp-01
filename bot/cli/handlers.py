@@ -69,6 +69,8 @@ def show_help() -> None:
         "                       Usage: add-note <note text>\n"
         "- 'search-note':       Display notes that contains input.\n"
         "                       Usage: search-note <input>\n"
+        "- 'delete-note':       Delete contact by Id.\n"
+        "                       Usage: delete-note <id>\n"
 
     )
 

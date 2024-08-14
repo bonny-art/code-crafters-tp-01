@@ -25,6 +25,15 @@ def add_note(args: List[str], note_book: NoteBook) -> str:
     return "Note added."
 
 @input_error
+def delete_note(args: List[str], note_book: NoteBook) -> str:
+    if len(args) == 0:
+        raise ValueError("No id provided.")
+    elif len(args) > 1:
+        raise ValueError("More then one id provided.")
+    note_book.delete_note(args[0])
+    return "Note deleted."
+
+@input_error
 def show_all_notes(note_book: NoteBook) -> str:
     """
     Retrieve all notes stored in the Note book.
