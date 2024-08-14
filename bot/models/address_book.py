@@ -119,7 +119,7 @@ class AddressBook(UserDict):
 
         return date_obj
 
-    def get_upcoming_birthdays(self) -> str:
+    def get_upcoming_birthdays(self, days: int) -> str:
         """
         Returns a formatted string of upcoming birthdays within the next 7 days.
 
@@ -128,7 +128,6 @@ class AddressBook(UserDict):
                 with upcoming birthdays.
         """
         upcoming_birthdays_list = []
-        days = 7
 
         today_date = datetime.now().date()
 
@@ -149,14 +148,85 @@ class AddressBook(UserDict):
 
                         congratulation_date = self._adjust_to_weekday(congratulation_date)
 
+                        phone_number = record.phones[0].value if record.phones else '---'
+                        # email = record.email.value if record.email else '---'
+
                         upcoming_birthdays_list.append(
-                            f"Contact name: {record.name.value}, birthday: {congratulation_date.strftime('%d.%m.%Y')}"
+                            f"Contact name: {record.name.value}, birthday: {congratulation_date.strftime('%d.%m.%Y')}, Phone: {phone_number}"
                         )
 
                 except ValueError:
                     pass
 
         return "\n".join(upcoming_birthdays_list)
+
+    # from datetime import datetime, date
+    # from rich.table import Table
+    # from rich.console import Console
+    # from io import StringIO
+
+    # def get_upcoming_birthdays(self, days: int) -> str:
+    #     """
+    #     Returns a formatted string of upcoming birthdays within the next specified number of days.
+
+    #     Returns:
+    #         str: A formatted string containing the name and birthday date of contacts
+    #             with upcoming birthdays, displayed as a table.
+    #     """
+    #     # Створюємо таблицю з інтеграцією значення days в заголовок
+        # table = Table(
+        #     title=f"Upcoming Birthdays within {days} Days",
+        #     title_style="bold orange1",
+        #     border_style="gray50",
+        #     padding=(0, 2),
+        #     show_header=True,
+        #     show_lines=True,
+        #     header_style="bold cyan",
+        #     row_styles=["dim", "none"],
+        # )
+
+    #     # Додаємо стовпці
+        # table.add_column("Name", style="dark_orange", width=20)
+        # table.add_column("Birthday", style="sky_blue3", style="green")
+        # table.add_column("Phone", style="sky_blue3", width=15)
+
+
+    #     today_date = datetime.now().date()
+
+    #     for record in self.data.values():
+    #         if record.birthday:
+    #             try:
+    #                 user_birthday = record.birthday.value
+
+    #                 if self._is_date_within_days(user_birthday, days):
+    #                     month = user_birthday.month
+    #                     day = user_birthday.day
+    #                     birthday_this_year = date(today_date.year, month, day)
+
+    #                     if birthday_this_year < today_date:
+    #                         congratulation_date = date(today_date.year + 1, month, day)
+    #                     else:
+    #                         congratulation_date = birthday_this_year
+
+    #                     congratulation_date = self._adjust_to_weekday(congratulation_date)
+
+    #                     table.add_row(
+    #                         record.name.value,
+    #                         congratulation_date.strftime('%d.%m.%Y')
+    #                     )
+
+    #             except ValueError:
+    #                 pass
+
+    #     # Створюємо консоль для захоплення виходу таблиці
+    #     console = Console()
+    #     with StringIO() as buf:
+    #         console.file = buf
+    #         console.print(table)
+    #         table_output = buf.getvalue()
+
+    #     return table_output
+
 
     def __str__(self) -> str:
         """
