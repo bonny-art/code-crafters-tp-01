@@ -11,9 +11,8 @@ class NoteBook(UserDict):
 	def add_note(self, note: Note):
 		self.data[note.id] = note
 
-	def edit_note(self, index, new_text):
-		if 0 <= index < len(self.data):
-			self.data[index].text = new_text
+	def change_note(self, index, new_text):
+		self.data[index].text = new_text
 
 	def delete_note (self, index):
 		del self.data[index]

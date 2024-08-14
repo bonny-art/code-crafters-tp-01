@@ -71,6 +71,9 @@ def show_help() -> None:
         "                       Usage: search-note <input>\n"
         "- 'delete-note':       Delete contact by Id.\n"
         "                       Usage: delete-note <id>\n"
+        "- 'change-note':       Update an existing note with new text.\n"
+        "                       Usage: change-note <id> <new_text>\n"
+        
 
     )
 

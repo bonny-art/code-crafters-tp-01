@@ -34,6 +34,17 @@ def delete_note(args: List[str], note_book: NoteBook) -> str:
     return "Note deleted."
 
 @input_error
+def change_note(args: List[str], note_book: NoteBook) -> str:
+    if len(args) == 0:
+        raise ValueError("No id provided.")
+    elif len(args) == 1:
+        raise ValueError("No text provided.")
+    id = args[0]
+    text = " ".join(args[1:])
+    note_book.change_note(id, text)
+    return "Note changed."
+
+@input_error
 def show_all_notes(note_book: NoteBook) -> str:
     """
     Retrieve all notes stored in the Note book.

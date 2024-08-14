@@ -134,7 +134,10 @@ def main() -> None:
 
         elif command == "delete-note":
             print_with_newlines(note_handlers.delete_note(args, note_list))
-            
+
+        elif command == "change-note":
+            print_with_newlines(note_handlers.change_note(args, note_list))
+
         else:
             print_with_newlines("Invalid command.")
 
