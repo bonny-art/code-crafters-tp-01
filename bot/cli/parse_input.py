@@ -5,6 +5,7 @@ Functions:
 - parse_input(user_input: str) -> tuple: Parses user input into a command and its arguments.
 """
 
+
 def parse_input(user_input: str) -> tuple:
     """
     Parses user input into a command and its arguments.

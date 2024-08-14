@@ -118,6 +118,12 @@ def main() -> None:
 
         elif command == 'edit-email':
             print(handlers.edit_contact_email(args, address_book))
+        
+        elif command == "add-address":
+            print_with_newlines(handlers.add_address_to_contact(args, address_book))
+    
+        elif command == "edit-address":
+            print_with_newlines(handlers.edit_contact_address(args, address_book))
 
         else:
             print_with_newlines("Invalid command.")

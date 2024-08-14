@@ -139,7 +139,42 @@ def remove_email_from_contact(args: List[str], address_book: AddressBook) -> str
     return f"Email address '{email_str}' removed from contact '{name_str}'."
 
 
+@input_error
+def add_address_to_contact(args: List[str], address_book: AddressBook) -> str:
+    if len(args) < 2:
+        return "Insufficient arguments. Usage: add-address <name> <address>"
+    
+    name_str = args[0]
+    address_str = ' '.join(args[1:])
 
+    name_str, address_str = args
+    record = address_book.find(name_str)
+    
+    if not record:
+        return f"No contact found with name {name_str}."
+    
+    try:
+        record.add_address(address_str)
+        return f"Address '{address_str}' added to contact '{name_str}'."
+    except ValueError as e:
+        return str(e)
+
+@input_error
+def edit_contact_address(args: List[str], address_book: AddressBook) -> str:
+    if len(args) < 2:
+        return "Insufficient arguments. Usage: edit-address <name> <new_address>"
+    
+    name_str, new_address_str = args
+    record = address_book.find(name_str)
+    
+    if not record:
+        return f"No contact found with name {name_str}."
+    
+    try:
+        record.edit_address(new_address_str)
+        return f"Address updated for contact {name_str}."
+    except ValueError as e:
+        return str(e)
 
 
 

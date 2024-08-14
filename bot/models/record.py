@@ -13,6 +13,7 @@ from .name import Name
 from .phone import Phone
 from .birthday import Birthday
 from .email import Email
+from .address import Address
 
 class Record:
     """
@@ -35,6 +36,7 @@ class Record:
         self.phones: List[Phone] = []
         self.emails: List[Email] = []  
         self.birthday = None
+        self.address = None
 
     #----AndrGR-----------------------------------------------------------------
     def add_email(self, email_address: str) -> None:
@@ -88,6 +90,36 @@ class Record:
             if email.address == email_address:
                 return email
         return None
+    
+    #__________________________________________________________________________
+
+    def add_address(self, address_str: str) -> None:
+        """
+        Adds an address to the contact record.
+        
+        Args:
+        - address_str (str): The address to set.
+        """
+        self.address = Address(address_str)
+
+    def edit_address(self, new_address_str: str) -> None:
+        """
+        Edits the contact's address.
+        
+        Args:
+        - new_address_str (str): The new address to set.
+        """
+        self.address = Address(new_address_str)
+
+    def get_address(self) -> Optional[str]:
+        """
+        Gets the contact's address.
+        
+        Returns:
+        - str or None: The address string if set, otherwise None.
+        """
+        return self.address.value if hasattr(self, 'address') else None
+
 
     #----AndrGR-----------------------------------------------------------------
 
@@ -179,9 +211,11 @@ class Record:
         else:
             emails_str = "----------"
 
+        address_str = self.get_address() or "----------"
+
         if self.birthday:
             birthday_str = self.birthday.value.strftime("%d.%m.%Y")
         else:
             birthday_str = "----------"
 
-        return f"Contact name: {self.name.value}, birthday: {birthday_str}, phones: {phones_str}, emails: {emails_str}"
+        return f"Contact name: {self.name.value}, birthday: {birthday_str}, phones: {phones_str}, emails: {emails_str}, address: {address_str}"
