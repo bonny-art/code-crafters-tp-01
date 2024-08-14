@@ -240,7 +240,7 @@ def show_birthday(args: List[str], address_book: AddressBook) -> str:
     return record.show_birthday()
 
 @input_error
-def birthdays(address_book: AddressBook) -> str:
+def birthdays(args: List[str], address_book: AddressBook) -> str:
     """
     Retrieve a list of upcoming birthdays from the address book.
 
@@ -250,7 +250,17 @@ def birthdays(address_book: AddressBook) -> str:
     Returns:
     str: A list of upcoming birthdays or a message indicating there are no contacts.
     """
+    if len(args) == 0:
+        days = 7
+    elif len(args) > 1:
+        return "Too many arguments. Usage: show-birthday <days>"
+    else:
+        try:
+            days = int(args[0])
+        except ValueError:
+            return "The number of days must be an integer. Usage: show-birthday <days>"
+
     if not address_book.data:
         return "No contacts."
 
-    return address_book.get_upcoming_birthdays()
+    return address_book.get_upcoming_birthdays(days)
