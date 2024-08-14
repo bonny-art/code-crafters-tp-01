@@ -32,5 +32,9 @@ class Address(Field):
         address_pattern = r'^[\w\s,]*$'
         
         if not re.fullmatch(address_pattern, address):
-            raise ValueError('Invalid address format')
+            raise ValueError(
+            "Invalid address format. The address must contain only alphanumeric characters, spaces, commas, "
+            "and numbers. Please ensure your address follows this pattern."
+        )
         self.value = address
+        super().__init__(address)
