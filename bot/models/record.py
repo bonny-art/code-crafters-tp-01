@@ -32,20 +32,26 @@ class Record:
         """
         self.name = Name(name)
         self.phones: List[Phone] = []
-        self.emails = List[Email] = []
+        self.emails: List[Email] = []
         self.birthday = None
 
     #----AndrGR-----------------------------------------------------------------
     
-    def add_email(self, email_address:str) -> None:
-        """
-        Adds an email address to the contact's list of emails.
+    # def add_email(self, email_address:str) -> None:
+    #     """
+    #     Adds an email address to the contact's list of emails.
 
-        Args:
-        - email_address (str): The email address to add.
-        """
+    #     Args:
+    #     - email_address (str): The email address to add.
+    #     """
+    #     email = Email(email_address)
+    #     self.emails.append(email)
+
+    def add_email(self, email_address: str) -> None:
+        print(f"Current attributes: {dir(self)}")  # Debugging line
         email = Email(email_address)
         self.emails.append(email)
+
 
     def remove_email(self, email_address:str) -> None:
         """
@@ -154,6 +160,8 @@ class Record:
             return "No birthday set"
         return f"{self.name.value}'s birthday is on {self.birthday.value.strftime('%d.%m.%Y')}"
 
+
+
     def __str__(self) -> str:
         """
         Returns a string representation of the contact record.
@@ -164,12 +172,11 @@ class Record:
         phones_str = '; '.join(str(p) for p in self.phones)
         if not phones_str:
             phones_str = "----------"
-        
 
-        emails_str = '; '.join(str(e) for e in self.emails)
-        if not emails_str:
+        if hasattr(self, 'emails'):  # Перевірка на наявність атрибуту 'emails' перед використанням
+            emails_str = '; '.join(e.value for e in self.emails)
+        else:
             emails_str = "----------"
-        
 
         if self.birthday:
             birthday_str = self.birthday.value.strftime("%d.%m.%Y")
