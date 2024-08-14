@@ -155,6 +155,33 @@ class Record:
         self.add_phone(new_phone_number)
         self.remove_phone(old_phone_number)
 
+
+    def edit_field(self, field: str, old_value:str, new_value: str) -> str:
+        """
+        Edits a specific field of the contact record.
+
+        Args:
+        - field (str): The field to edit ('name', 'phone', or 'birthday').
+        - new_value (str): The new value for the field.
+
+        Returns:
+        - str: A message indicating the result of the edit.
+        """
+        if field == 'name':
+            self.name = Name(new_value)
+        elif field == 'phones':
+            if self.phones:
+                old_phone = old_value
+                self.edit_phone(old_phone, new_value)
+            else:
+                self.add_phone(new_value)
+        elif field == 'birthday':
+            self.birthday = Birthday(new_value)
+        else:
+            return f"Unknown field '{field}'. Available fields: name, phone, birthday."
+        
+        return f"Field '{field}' has been updated to '{new_value}'."
+
     def find_phone(self, phone_number: str) -> Optional[Phone]:
         """
         Finds and returns a phone number from the contact's list.
