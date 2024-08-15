@@ -345,20 +345,33 @@ def change_contact(args: List[str], address_book: AddressBook) -> str:
 
         if field_to_edit.lower() == 'exit':
             break
+        
+        if field_to_edit == "name":
+            # Ask for the new name
+            new_value = Prompt.ask("Enter the new name")
+            
+            # Call edit_field with address_book for name change
+            result = record.edit_field(field_to_edit, None, new_value, address_book)
+            console.print(f"[green]{result}[/green]")
+            # If name changed, update the local reference
+            name_str = new_value
+            continue
 
-        if field_to_edit.lower() in ["name", "phones", "emails", "address", "birthday"]:
+        if field_to_edit.lower() in ["phones", "emails", "address", "birthday"]:
             old_value = None
+
             if field_to_edit in ["phones", "emails"]:
                 should_edit_existing = Prompt.ask(
                     f"Would you like to edit an existing {field_to_edit[:-1]} or add a new one? (edit/add)", 
                     default="add"
                 ).lower()
-                
+
                 if should_edit_existing == "edit":
                     old_value = Prompt.ask(f"Enter the current {field_to_edit[:-1]} to be replaced")
 
             new_value = Prompt.ask(f"Enter the new value for {field_to_edit} (or leave empty to remove)", default="")
 
+            # Handle empty values to remove the old value
             if new_value.strip() == "" and old_value:
                 result = record.edit_field(field_to_edit, old_value, None)
                 console.print(f"[green]The {field_to_edit[:-1]} '{old_value}' has been removed.[/green]")
@@ -371,6 +384,7 @@ def change_contact(args: List[str], address_book: AddressBook) -> str:
             console.print("[red]Invalid option. Please enter 'name', 'phones', 'emails', 'address', 'birthday', or 'exit' to stop.")
 
     return "Contact updated successfully."
+
 
 @input_error
 def delete_contact(args: List[str], address_book: AddressBook) -> str:

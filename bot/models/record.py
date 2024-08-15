@@ -187,7 +187,7 @@ class Record:
     
 
 
-    def edit_field(self, field: str, old_value: Optional[str], new_value: Optional[str]) -> str:
+    def edit_field(self, field: str, old_value: Optional[str], new_value: Optional[str], address_book=None) -> str:
         """
         Edits or removes a specific field of the contact record.
 
@@ -195,14 +195,27 @@ class Record:
         - field (str): The field to edit ('name', 'phones', 'emails', 'address', 'birthday').
         - old_value (str): The old value to be replaced (or removed).
         - new_value (str): The new value for the field. If None, the old value will be removed.
+        - address_book (AddressBook): Required when changing the name to update the AddressBook.
 
         Returns:
         - str: A message indicating the result of the edit.
         """
         if field == 'name':
+            if not address_book:
+                raise ValueError("AddressBook is required to change the contact's name.")
+            
             if new_value:
+                # Remove the contact under the old name from the AddressBook
+                old_name = self.name.value
+                address_book.delete(old_name)
+
+                # Update the contact's name in the Record
                 self.name = Name(new_value)
-                return f"Name updated to '{new_value}'."
+
+                # Add the contact back to the AddressBook with the new name
+                address_book.add_record(self)
+
+                return f"Name updated from '{old_name}' to '{new_value}'."
             return "No name change applied."
 
         elif field == 'phones':
