@@ -448,8 +448,12 @@ def search(args: List[str], address_book: AddressBook) -> str:
     Returns:
     str: All contacts that matche the passed input or a message indicating it's empty.
     """
-    search_term = args[0]
-    matches = address_book.search_in_fields(search_term.lower())
+    if len(args) == 0:
+        raise ValueError("No search input provided.")
+    elif len(args) > 1:
+        raise ValueError("More then one search input provided. One is expected")
+    search_input = args[0]
+    matches = address_book.search_in_fields(search_input.lower())
 
     if matches == None:
         return "No matches found."
