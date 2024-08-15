@@ -207,6 +207,52 @@ class AddressBook(UserDict):
 
         return table_output
 
+    def show_all_contacts(self) -> str:
+        """
+        Returns a formatted string of all contacts in the address book.
+
+        Returns:
+            str: A formatted string containing all contacts in the address book,
+                displayed as a table.
+        """
+        table = Table(
+            title="All Contacts",
+            title_style="bold orange1",
+            border_style="gray50",
+            padding=(0, 2),
+            show_header=True,
+            show_lines=True,
+            header_style="bold cyan"
+        )
+
+        table.add_column("Name\n", style="dark_orange", width=20)
+        table.add_column("Phones\n", style="sky_blue3", justify="center", width=16)
+        table.add_column("Emails\n", style="sky_blue3", justify="center", width=30)
+        table.add_column("Adress\n", style="sky_blue3", justify="center")
+        table.add_column("Birthday\n", style="sky_blue3", justify="center", width=16)
+
+        for record in self.data.values():
+            phone_numbers = '\n'.join(phone.value for phone in record.phones) if record.phones else '---'
+            emails = '\n'.join(email.address for email in record.emails) if record.emails else '---'
+            adress = record.get_address() if record.get_address() else '---'
+            birthday = record.birthday.value.strftime('%d.%m.%Y') if record.birthday else '---'
+
+            table.add_row(
+                record.name.value,
+                phone_numbers,
+                emails,
+                adress,
+                birthday
+            )
+
+        console = Console()
+        with StringIO() as buf:
+            console.file = buf
+            console.print(table)
+            table_output = buf.getvalue()
+
+        return table_output
+
 
     def __str__(self) -> str:
         """
