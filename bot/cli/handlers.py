@@ -451,6 +451,6 @@ def search(args: List[str], address_book: AddressBook) -> str:
     search_term = args[0]
     matches = address_book.search_in_fields(search_term.lower())
 
-    if not matches:
+    if matches == None:
         return "No matches found."
-    return str(matches)
+    return matches

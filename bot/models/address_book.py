@@ -89,11 +89,37 @@ class AddressBook(UserDict):
         for record in self.data.values():
             matches = [record.name and record.name.value.lower().startswith(input),
                        record.phones and any(phone.value.lower().startswith(input) for phone in record.phones),
+                       record.emails and any(email.address.lower().startswith(input) for email in record.emails),
+                       record.address and record.address.value.lower().startswith(input),
                        type(record.birthday) == Birthday and record.birthday.value.strftime('%d.%m.%Y').startswith(input)]
             if any(matches):
-                matching_records.append(str(record))
+                matching_records.append(record)
         if len(matching_records) > 0:
-            return matching_records
+            table = Table(
+                "Name",
+                "Birthday",
+                "Phones",
+                "Emails",
+                "Address",
+                title="Search Results",
+                title_style="bold orange1",
+                border_style="gray50",
+                padding=(0, 2),
+                show_header=True,
+                show_lines=True,
+                header_style="bold cyan"
+            )
+            for record in matching_records:
+                table.add_row(
+                    record.name.value,
+                    record.birthday.value.strftime('%d.%m.%Y') if record.birthday else '---',
+                    ', '.join([phone.value for phone in record.phones]) if len(record.phones) > 0 else '---',
+                    ', '.join([email.address for email in record.emails]) if len(record.emails) > 0 else '---',
+                    record.address.value if record.address else '---'
+                    )
+            console = Console()
+            console.print(table)
+            return ""
         else:
             return None
 
