@@ -1,8 +1,9 @@
 import uuid
 from datetime import datetime
+from typing import List
 
 class Note:
-	def __init__(self, text, tags=None):
+	def __init__(self, text, tags: List[str]=None):
 		self.id = str(uuid.uuid4())
 		self.create_date = datetime.now()
 		self.text = text

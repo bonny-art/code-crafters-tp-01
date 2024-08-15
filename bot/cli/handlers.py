@@ -76,10 +76,14 @@ def show_help() -> None:
         "                       Usage: add-note <note text>\n"
         "- 'search-note':       Display notes that contains input.\n"
         "                       Usage: search-note <input>\n"
-        "- 'delete-note':       Delete contact by Id.\n"
+        "- 'delete-note':       Delete note by Id.\n"
         "                       Usage: delete-note <id>\n"
         "- 'change-note':       Update an existing note with new text.\n"
         "                       Usage: change-note <id> <new_text>\n"
+        "- 'add-note-tag':      Add new note tag by Id and tag name.\n"
+        "                       Usage: add-note-tag <id> <tag>\n"
+        "- 'delete-note-tag':   Delete an existing note tag\n"
+        "                       Usage: delete-note-tag <id> <tag>\n"
     )
 
 #------------------------------------------------------------------
