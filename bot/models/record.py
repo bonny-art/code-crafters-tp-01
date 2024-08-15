@@ -64,14 +64,15 @@ class Record:
         - old_email_address (str): The email address to replace.
         - new_email_address (str): The new email address to add.
         """
+        self.add_email(new_email)
+        self.remove_email(old_email)
+        # if self.emails is None:
+        #     self.emails = []
 
-        if self.emails is None:
-            self.emails = []
-
-        for i, email in enumerate(self.emails):
-                if email.address == old_email:
-                    self.emails[i] = Email(new_email)
-                    return self.emails
+        # for i, email in enumerate(self.emails):
+        #         if email.address == old_email:
+        #             self.emails[i] = Email(new_email)
+        #             return self.emails
 
     def find_email(self, email_address:str) -> Optional[Email]:
         """
@@ -153,37 +154,6 @@ class Record:
         self.remove_phone(old_phone_number)
 
 
-    def edit_field(self, field: str, old_value:str, new_value: str) -> str:
-        """
-        Edits a specific field of the contact record.
-
-        Args:
-        - field (str): The field to edit ('name', 'phone', or 'birthday').
-        - new_value (str): The new value for the field.
-
-        Returns:
-        - str: A message indicating the result of the edit.
-        """
-        if field == 'name':
-            self.name = Name(new_value)
-        elif field == 'phones':
-            if self.phones:
-                old_phone = old_value
-                self.edit_phone(old_phone, new_value)
-            else:
-                self.add_phone(new_value)
-        elif field == 'birthday':
-            self.birthday = Birthday(new_value)
-        elif field == 'emails':
-            old_email = old_value
-            self.emails = self.edit_email(old_email, new_value)
-        elif field == 'address':
-            self.edit_address(new_value)
-        else:
-            return f"Unknown field '{field}'. Available fields: name, phone, birthday."
-
-        return f"Field '{field}' has been updated to '{new_value}'."
-
     def find_phone(self, phone_number: str) -> Optional[Phone]:
         """
         Finds and returns a phone number from the contact's list.
@@ -221,6 +191,68 @@ class Record:
         if self.birthday is None:
             return "No birthday set"
         return f"{self.name.value}'s birthday is on {self.birthday.value.strftime('%d.%m.%Y')}"
+    
+
+
+    def edit_field(self, field: str, old_value: Optional[str], new_value: Optional[str]) -> str:
+        """
+        Edits or removes a specific field of the contact record.
+
+        Args:
+        - field (str): The field to edit ('name', 'phones', 'emails', 'address', 'birthday').
+        - old_value (str): The old value to be replaced (or removed).
+        - new_value (str): The new value for the field. If None, the old value will be removed.
+
+        Returns:
+        - str: A message indicating the result of the edit.
+        """
+        if field == 'name':
+            if new_value:
+                self.name = Name(new_value)
+                return f"Name updated to '{new_value}'."
+            return "No name change applied."
+
+        elif field == 'phones':
+            if new_value:
+                if old_value:
+                    self.edit_phone(old_value, new_value)
+                    return f"Phone number '{old_value}' updated to '{new_value}'."
+                else:
+                    self.add_phone(new_value)
+                    return f"Phone number '{new_value}' added."
+            elif old_value:
+                self.remove_phone(old_value)
+                return f"Phone number '{old_value}' removed."
+
+        elif field == 'emails':
+            if new_value:
+                if old_value:
+                    self.edit_email(old_value, new_value)
+                    return f"Email '{old_value}' updated to '{new_value}'."
+                else:
+                    self.add_email(new_value)
+                    return f"Email '{new_value}' added."
+            elif old_value:
+                self.remove_email(old_value)
+                return f"Email '{old_value}' removed."
+
+        elif field == 'address':
+            if new_value:
+                self.edit_address(new_value)
+                return f"Address updated to '{new_value}'."
+            else:
+                self.address = None
+                return "Address removed."
+
+        elif field == 'birthday':
+            if new_value:
+                self.birthday = Birthday(new_value)
+                return f"Birthday updated to '{new_value}'."
+            else:
+                self.birthday = None
+                return "Birthday removed."
+
+        return "Unknown action."
 
 
 

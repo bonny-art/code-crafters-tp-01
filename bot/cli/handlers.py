@@ -57,7 +57,7 @@ def show_help() -> tuple:
         "hello: Greet the user.",
         "help: Display this help message.",
         "add: Add a new contact with phone or a phone to existing contact. Usage: add <name> <phone>",
-        "change: Update an existing field with new value. Usage: change <contact_name> <field name> <old_value> <new_value>",
+        "change: Update an existing field with a new value, guided by user input flow.",
         "phone: Display a contact's phone number/numbers. Usage: phone <name>",
         "show-birthday: Display a contact's birthday. Usage: show-birthday <name>",
         "birthdays: Display upcoming birthdays within 7 days.",
@@ -75,9 +75,7 @@ def show_help() -> tuple:
         "- 'help':              Display this help message.\n"
         "- 'add':               Add a new contact with phone or a phone to existing contact.\n"
         "                       Usage: add <name> <phone>\n"
-        "- 'change':            Update an existing field with new value."
-        "                       Usage: change <contact_name> <field name> <old_value> <new_value>\n"
-        "                       Usage: change <name> <old_phone> <new_phone>\n"
+        "- 'change':            Update an existing field with a new value through a guided process.\n"
         "- 'phone':             Display a contact's phone number/numbers. Usage: phone <name>\n"
         "- 'show-birthday':     Display a contact's birthday. Usage: show-birthday <name>\n"
         "- 'birthdays':         Display upcoming birthdays within 7 days.\n"
@@ -323,38 +321,56 @@ def add_contact(args: List[str], address_book: AddressBook) -> str:
 @input_error
 def change_contact(args: List[str], address_book: AddressBook) -> str:
     """
-    Edits a contact's information in the address book.
+    Change the details of an existing contact in the address book.
 
     Parameters:
-    args (List[str]): List of arguments containing the contact name, the field to edit 
-                      (e.g., 'name', 'phone', 'birthday'), and the new value.
-    address_book (AddressBook): The address book where the contact exists.
+    args (List[str]): List of arguments containing parts of the name.
+    address_book (AddressBook): The address book where the contact will be updated.
 
     Returns:
-    str: Success or error message indicating whether the contact was updated successfully,
-         or if the contact was not found, or if the specified field is unknown.
+    str: Success or error message indicating the result of the operation.
     """
-    if len(args) < 3:
-        return "Usage: change <name> <field> <old_value> <new_value>"
+    name_str = " ".join(args)
 
-    contact_name = args[0]
-    field = args[1]
-    old_value = args[2]
-    # Join all remaining arguments as the new value to handle multi-word inputs
-    new_value = ' '.join(args[3:])
+    record = address_book.find(name_str)
 
-    if contact_name not in address_book:
-        return f"Contact '{contact_name}' not found."
-    
-    record = address_book[contact_name]
-    result = record.edit_field(field, old_value, new_value)
-    
-    if field == 'name':
-        # Handle renaming by updating the key in the address book
-        address_book[new_value] = record
-        del address_book[contact_name]
-    
-    return result
+    if not record:
+        return f"Contact '{name_str}' not found. Please check the name."
+
+    while True:
+        field_to_edit = Prompt.ask(
+            "[cyan]Which field would you like to edit? (name, phones, emails, address, birthday, 'exit' to stop)[/cyan]",
+            console=console
+        )
+
+        if field_to_edit.lower() == 'exit':
+            break
+
+        if field_to_edit.lower() in ["name", "phones", "emails", "address", "birthday"]:
+            old_value = None
+            if field_to_edit in ["phones", "emails"]:
+                should_edit_existing = Prompt.ask(
+                    f"Would you like to edit an existing {field_to_edit[:-1]} or add a new one? (edit/add)", 
+                    default="add"
+                ).lower()
+                
+                if should_edit_existing == "edit":
+                    old_value = Prompt.ask(f"Enter the current {field_to_edit[:-1]} to be replaced")
+
+            new_value = Prompt.ask(f"Enter the new value for {field_to_edit} (or leave empty to remove)", default="")
+
+            if new_value.strip() == "" and old_value:
+                result = record.edit_field(field_to_edit, old_value, None)
+                console.print(f"[green]The {field_to_edit[:-1]} '{old_value}' has been removed.[/green]")
+            elif new_value.strip() != "":
+                result = record.edit_field(field_to_edit, old_value, new_value)
+                console.print(f"[green]{result}[/green]")
+            else:
+                console.print(f"[yellow]No action taken.[/yellow]")
+        else:
+            console.print("[red]Invalid option. Please enter 'name', 'phones', 'emails', 'address', 'birthday', or 'exit' to stop.")
+
+    return "Contact updated successfully."
 
 @input_error
 def delete_contact(args: List[str], address_book: AddressBook) -> str:
