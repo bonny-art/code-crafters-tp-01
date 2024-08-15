@@ -64,8 +64,14 @@ class Record:
         - old_email_address (str): The email address to replace.
         - new_email_address (str): The new email address to add.
         """
-        self.add_email(new_email)
-        self.remove_email(old_email)
+
+        if self.emails is None:
+            self.emails = []
+
+        for i, email in enumerate(self.emails):
+                if email.address == old_email:
+                    self.emails[i] = Email(new_email)
+                    return self.emails
 
     def find_email(self, email_address:str) -> Optional[Email]:
         """
@@ -168,6 +174,11 @@ class Record:
                 self.add_phone(new_value)
         elif field == 'birthday':
             self.birthday = Birthday(new_value)
+        elif field == 'emails':
+            old_email = old_value
+            self.emails = self.edit_email(old_email, new_value)
+        elif field == 'address':
+            self.edit_address(new_value)
         else:
             return f"Unknown field '{field}'. Available fields: name, phone, birthday."
 

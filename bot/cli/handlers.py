@@ -57,7 +57,6 @@ def show_help() -> tuple:
         "hello: Greet the user.",
         "help: Display this help message.",
         "add: Add a new contact with phone or a phone to existing contact. Usage: add <name> <phone>",
-        "add-birthday: Add a new contact with birthday or a birthday to a contact. Usage: add-birthday <name> <birthday>",
         "change: Update an existing field with new value. Usage: change <contact_name> <field name> <old_value> <new_value>",
         "phone: Display a contact's phone number/numbers. Usage: phone <name>",
         "show-birthday: Display a contact's birthday. Usage: show-birthday <name>",
@@ -320,10 +319,11 @@ def add_contact(args: List[str], address_book: AddressBook) -> str:
     address_book.add_record(record)
     return "Contact added successfully."
 
+
 @input_error
 def change_contact(args: List[str], address_book: AddressBook) -> str:
     """
- Edits a contact's information in the address book.
+    Edits a contact's information in the address book.
 
     Parameters:
     args (List[str]): List of arguments containing the contact name, the field to edit 
@@ -335,10 +335,14 @@ def change_contact(args: List[str], address_book: AddressBook) -> str:
          or if the contact was not found, or if the specified field is unknown.
     """
     if len(args) < 3:
-        return "Usage: edit <name> <field> <new_value>"
+        return "Usage: change <name> <field> <old_value> <new_value>"
 
-    contact_name, field, old_value, new_value = args[0], args[1], args[2], args[3]
-    
+    contact_name = args[0]
+    field = args[1]
+    old_value = args[2]
+    # Join all remaining arguments as the new value to handle multi-word inputs
+    new_value = ' '.join(args[3:])
+
     if contact_name not in address_book:
         return f"Contact '{contact_name}' not found."
     
