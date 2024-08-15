@@ -34,9 +34,15 @@ and retrieving contact information.
 """
 
 from typing import List
+
+from rich.prompt import Prompt
+from rich.console import Console
+
 from bot.models import AddressBook, Record
 from bot.cli.input_error import input_error
 
+
+console = Console()
 
 def show_help() -> tuple:
     """
@@ -70,10 +76,9 @@ def show_help() -> tuple:
         "- 'help':              Display this help message.\n"
         "- 'add':               Add a new contact with phone or a phone to existing contact.\n"
         "                       Usage: add <name> <phone>\n"
-        "- 'add-birthday':      Add a new contact with birthday or a birthday to a contact.\n"
-        "                       Usage: add-birthday <name> <birthday>\n"
-        "- 'change':            Update an existing field with new value.\n"
+        "- 'change':            Update an existing field with new value."
         "                       Usage: change <contact_name> <field name> <old_value> <new_value>\n"
+        "                       Usage: change <name> <old_phone> <new_phone>\n"
         "- 'phone':             Display a contact's phone number/numbers. Usage: phone <name>\n"
         "- 'show-birthday':     Display a contact's birthday. Usage: show-birthday <name>\n"
         "- 'birthdays':         Display upcoming birthdays within 7 days.\n"
@@ -82,8 +87,19 @@ def show_help() -> tuple:
         "                       Usage: search <input>\n"
         "- 'delete':            Delete contact by name.\n"
         "- 'close' or 'exit':   Exit the program.\n"
-        "- 'add-email':         Add an email to an existing contact. Usage: add-email <name> <email>\n"  
-        "- 'edit-email':        Edit an existing email for a contact. Usage: edit-email <name> <old_email> <new_email>\n"  
+        "- 'add-email':         Add an email to an existing contact."
+        "                       Usage: add-email <name> <email>\n"  
+        "- 'edit-email':        Edit an existing email for a contact."
+        "                       Usage: edit-email <name> <old_email> <new_email>\n" 
+        "- 'all-notes':         Display all notes.\n"        
+        "- 'add-note':          Add a new note\n"
+        "                       Usage: add-note <note text>\n"
+        "- 'search-note':       Display notes that contains input.\n"
+        "                       Usage: search-note <input>\n"
+        "- 'delete-note':       Delete contact by Id.\n"
+        "                       Usage: delete-note <id>\n"
+        "- 'change-note':       Update an existing note with new text.\n"
+        "                       Usage: change-note <id> <new_text>\n"
     )
     
     return commands, commands_str
@@ -95,7 +111,7 @@ def show_help() -> tuple:
 def add_email_to_contacts(args: List[str], address_book: AddressBook) -> str:
     if len(args) < 2:
         return "Wrong arguments! Use command: add-email: <name> <email>"
-    
+
     name_str, email_str = args
     record = address_book.find(name_str)
     if not record:
@@ -105,7 +121,7 @@ def add_email_to_contacts(args: List[str], address_book: AddressBook) -> str:
         return f"Email '{email_str}' added to contact '{name_str}'."
     except ValueError as e:
         return str(e)
-    
+
 @input_error
 def edit_contact_email(args: List[str], address_book: AddressBook) -> str:
     """
@@ -170,16 +186,16 @@ def remove_email_from_contact(args: List[str], address_book: AddressBook) -> str
 def add_address_to_contact(args: List[str], address_book: AddressBook) -> str:
     if len(args) < 2:
         return "Insufficient arguments. Usage: add-address <name> <address>"
-    
+
     name_str = args[0]
     address_str = ' '.join(args[1:])
 
     name_str, address_str = args
     record = address_book.find(name_str)
-    
+
     if not record:
         return f"No contact found with name {name_str}."
-    
+
     try:
         record.add_address(address_str)
         return f"Address '{address_str}' added to contact '{name_str}'."
@@ -190,13 +206,13 @@ def add_address_to_contact(args: List[str], address_book: AddressBook) -> str:
 def edit_contact_address(args: List[str], address_book: AddressBook) -> str:
     if len(args) < 2:
         return "Insufficient arguments. Usage: edit-address <name> <new_address>"
-    
+
     name_str, new_address_str = args
     record = address_book.find(name_str)
-    
+
     if not record:
         return f"No contact found with name {name_str}."
-    
+
     try:
         record.edit_address(new_address_str)
         return f"Address updated for contact {name_str}."
@@ -208,36 +224,95 @@ def edit_contact_address(args: List[str], address_book: AddressBook) -> str:
 
 
 #------------------------------------------------------------------
+
 @input_error
 def add_contact(args: List[str], address_book: AddressBook) -> str:
     """
-    Add a new contact with the given name and phone number to the address book.
+    Add a new contact to the address book with a name and prompt for additional details.
 
     Parameters:
-    args (List[str]): List of arguments containing name and phone number.
+    args (List[str]): List of arguments containing parts of the name.
     address_book (AddressBook): The address book where the contact will be added.
 
     Returns:
-    str: Success or error message indicating whether the contact was added successfully
-    or if the phone number already exists for the contact.
+    str: Success or error message indicating the result of the operation.
     """
-    if len(args) < 2:
-        return "Insufficient arguments. Usage: add <name> <phone>"
-
-    name_str, phone_str = args
+    # Об'єднання всіх аргументів в одне ім'я
+    name_str = " ".join(args)
 
     record = address_book.find(name_str)
 
     if record:
-        if record.find_phone(phone_str):
-            return f"Contact {name_str} already has this phone number."
-        record.add_phone(phone_str)
-        return f"Phone number added to existing contact {name_str}."
+        return f"Contact '{name_str}' already exists. If you want to update it, use the command: change <contact_name>."
 
+    # Створення нового запису
     record = Record(name_str)
-    record.add_phone(phone_str)
+
+    # Введення телефонних номерів
+    while True:
+        phone_str = Prompt.ask("\n[cyan]Enter phone number (or '[dark_orange]n[/dark_orange]' to skip)[/cyan]", console=console)
+        if phone_str.lower() == "n":
+            break
+        if not phone_str.strip():  # Перевірка на порожній рядок
+            console.print("[red]Phone number cannot be empty. Enter '[cyan]n[/cyan]' to skip.[/red]")
+            continue
+        if phone_str in [phone.value for phone in record.phones]:
+            console.print("[yellow]This phone number already exists in the contact. Please enter a different one.[/yellow]")
+            continue
+        try:
+            record.add_phone(phone_str)
+        except ValueError as e:
+            console.print(f"[red]Error adding phone number:[/red] {e}")
+            continue
+
+    # Введення електронних адрес з повторним запитом у разі помилки
+    while True:
+        email = Prompt.ask("\n[cyan]Enter email (or '[dark_orange]n[/dark_orange]' to skip)[/cyan]", console=console)
+        if email.lower() == "n":
+            break
+        if not email.strip():  # Перевірка на порожній рядок
+            console.print("[red]Email cannot be empty. Enter '[cyan]n[/cyan]' to skip.[/red]")
+            continue
+        if email in [email.address for email in record.emails]:
+            console.print("[yellow]This email already exists in the contact. Please enter a different one.[/yellow]")
+            continue
+        try:
+            record.add_email(email)
+        except ValueError as e:
+            console.print(f"[red]Error adding email:[/red] {e}")
+            continue
+
+    # Введення адреси з повторним запитом у разі помилки
+    while True:
+        address = Prompt.ask("\n[cyan]Enter address (or '[dark_orange]n[/dark_orange]' to skip)[/cyan]", console=console)
+        if address.lower() == "n":
+            break
+        if not address.strip():  # Перевірка на порожній рядок
+            console.print("[red]Address cannot be empty. Enter '[cyan]n[/cyan]' to skip.[/red]")
+            continue
+        try:
+            record.add_address(address)
+            break
+        except ValueError as e:
+            console.print(f"[red]Error adding address:[/red] {e}")
+
+    # Введення дня народження з повторним запитом у разі помилки
+    while True:
+        birthday = Prompt.ask("\n[cyan]Enter birthday (DD.MM.YYYY) (or '[dark_orange]n[/dark_orange]' to skip)[/cyan]", console=console)
+        if birthday.lower() == "n":
+            break
+        if not birthday.strip():  # Перевірка на порожній рядок
+            console.print("[red]Birthday cannot be empty. Enter '[cyan]n[/cyan]' to skip.[/red]")
+            continue
+        try:
+            record.add_birthday(birthday)
+            break  # Вихід з циклу, якщо введення успішне
+        except ValueError as e:
+            console.print(f"[red]Error adding birthday:[/red] {e}")
+
+    # Додавання запису до адресної книги
     address_book.add_record(record)
-    return "Contact added."
+    return "Contact added successfully."
 
 @input_error
 def change_contact(args: List[str], address_book: AddressBook) -> str:
@@ -335,36 +410,6 @@ def show_all(address_book: AddressBook) -> str:
     return str(address_book)
 
 @input_error
-def add_birthday(args: List[str], address_book: AddressBook) -> str:
-    """
-    Add a birthday to a contact or create a new contact with the birthday.
-
-    Parameters:
-    args (List[str]): List of arguments containing name and birthday.
-    address_book (AddressBook): The address book where the contact will be added or updated.
-
-    Returns:
-    str: Success or error message indicating whether the birthday was added successfully
-    or if there were insufficient arguments.
-    """
-    if len(args) < 2:
-        return "Insufficient arguments. Usage: add-birthday <name> <birthday>"
-
-    name_str, birthday_str = args
-
-    record = address_book.find(name_str)
-
-    if record:
-        record.add_birthday(birthday_str)
-        return f"Birthday added to existing contact {name_str}."
-
-    record = Record(name_str)
-    record.add_birthday(birthday_str)
-    address_book.add_record(record)
-    return "Contact with birthday added."
-
-
-@input_error
 def show_birthday(args: List[str], address_book: AddressBook) -> str:
     """
     Retrieve the birthday of a contact from the address book.
@@ -426,8 +471,9 @@ def search(args: List[str], address_book: AddressBook) -> str:
     Returns:
     str: All contacts that matche the passed input or a message indicating it's empty.
     """
-    input = args[0]
-    matches = address_book.search_in_fields(input.lower())
+    search_term = args[0]
+    matches = address_book.search_in_fields(search_term.lower())
+
     if not matches:
         return "No matches found."
     return str(matches)

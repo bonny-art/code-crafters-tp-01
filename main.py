@@ -51,6 +51,9 @@ from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import CompleteStyle
 
 
+from bot.cli import note_handlers
+from bot.cli.note_data_manager import load_data as note_load_data, save_data as note_save_data
+
 def main() -> None:
     """
     Runs the assistant bot for managing contacts.
@@ -70,6 +73,7 @@ def main() -> None:
     None
     """
     address_book = load_data()
+    note_list = note_load_data()
 
     print_with_newlines("Welcome to the assistant bot!")
     print_with_newlines("Type 'help' to see a list of available commands.", lines_before = 0)
@@ -86,6 +90,7 @@ def main() -> None:
 
         if command in ["close", "exit"]:
             save_data(address_book)
+            note_save_data(note_list)
             print_with_newlines("Good bye!")
             break
 
@@ -111,9 +116,6 @@ def main() -> None:
         elif command == "search":
             print_with_newlines(handlers.search(args, address_book))
 
-        elif command == "add-birthday":
-            print_with_newlines(handlers.add_birthday(args, address_book))
-
         elif command == "show-birthday":
             print_with_newlines(handlers.show_birthday(args, address_book))
 
@@ -122,6 +124,21 @@ def main() -> None:
 
         elif command == "delete":
             print_with_newlines(handlers.delete_contact(args, address_book))
+            
+        elif command == "add-note":            
+            print_with_newlines(note_handlers.add_note(args, note_list))
+            
+        elif command == "all-notes":
+            print_with_newlines(note_handlers.show_all_notes(note_list))
+
+        elif command == "search-note":
+            print_with_newlines(note_handlers.search_note(args, note_list))
+
+        elif command == "delete-note":
+            print_with_newlines(note_handlers.delete_note(args, note_list))
+
+        elif command == "change-note":
+            print_with_newlines(note_handlers.change_note(args, note_list))
 
         else:
             print_with_newlines("Invalid command.")
