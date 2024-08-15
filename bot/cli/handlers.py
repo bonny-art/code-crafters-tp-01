@@ -95,11 +95,17 @@ def show_help() -> tuple:
         "- 'add-note':          Add a new note\n"
         "                       Usage: add-note <note text>\n"
         "- 'search-note':       Display notes that contains input.\n"
-        "                       Usage: search-note <input>\n"
-        "- 'delete-note':       Delete contact by Id.\n"
+        "                       Usage by text: search-note <input>\n"
+        "                       Usage by tags: search-note #<tag> #<tag2>\n"    
+        "                       Usage by tags example: search-note #fire #quotation #art\n"             
+        "- 'delete-note':       Delete note by Id.\n"
         "                       Usage: delete-note <id>\n"
         "- 'change-note':       Update an existing note with new text.\n"
         "                       Usage: change-note <id> <new_text>\n"
+        "- 'add-note-tag':      Add new note tag by Id and tag name.\n"
+        "                       Usage: add-note-tag <id> <tag>\n"
+        "- 'delete-note-tag':   Delete an existing note tag\n"
+        "                       Usage: delete-note-tag <id> <tag>\n"
     )
     
     return commands, commands_str
