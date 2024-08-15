@@ -66,13 +66,6 @@ class Record:
         """
         self.add_email(new_email)
         self.remove_email(old_email)
-        # if self.emails is None:
-        #     self.emails = []
-
-        # for i, email in enumerate(self.emails):
-        #         if email.address == old_email:
-        #             self.emails[i] = Email(new_email)
-        #             return self.emails
 
     def find_email(self, email_address:str) -> Optional[Email]:
         """
