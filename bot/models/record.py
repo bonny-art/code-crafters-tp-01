@@ -187,7 +187,7 @@ class Record:
     
 
 
-    def edit_field(self, field: str, old_value: Optional[str], new_value: Optional[str], address_book=None) -> str:
+    def edit_field(self, field: str, old_value: str, new_value: str, address_book=None):
         """
         Edits or removes a specific field of the contact record.
 
