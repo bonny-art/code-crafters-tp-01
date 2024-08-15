@@ -38,4 +38,3 @@ class Phone(Field):
         if not re.fullmatch(r'\d{10}', value):
             raise ValueError("Phone number must be 10 digits")
         super().__init__(value)
-        

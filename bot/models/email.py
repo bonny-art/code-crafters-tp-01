@@ -31,7 +31,7 @@ class Email(Field):
         email_pattern = r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+'
         
         if not re.fullmatch(email_pattern, address):
-            raise ValueError('Invalid email format')
+            raise ValueError("Invalid email format. Expected format: example@domain.com")
         
         
         
