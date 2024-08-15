@@ -20,7 +20,21 @@ class NoteBook(UserDict):
 	def search_notes(self, keyword):
 		if not self.data:
 			return "No notes found."
-		return self.notes_to_table(f"Found Notes by Keyword '{keyword}'", [note for note in self.data.values() if keyword in note.text])
+		
+		data = []
+
+		if "#" in keyword:
+			keys = [k for k in keyword.split(" ") if "#" in k]
+			data = [note for note in self.data.values() if any(key in note.tags for key in keys)]
+			data = sorted(data, key=lambda note: note.tags)
+			if not data:
+				return "No notes found."
+			return self.notes_to_table(f"Found Notes by Tag '{" ".join(keys)}'", data)
+
+		data = [note for note in self.data.values() if keyword in note.text]
+		if not data:
+			return "No notes found."
+		return self.notes_to_table(f"Found Notes by Keyword '{keyword}'", data)
 
 	def add_tag(self, id: str, tags: List[str]):
 		note = self.data[id]
