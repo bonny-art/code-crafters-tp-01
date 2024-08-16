@@ -41,6 +41,12 @@ from rich.console import Console
 from bot.models import AddressBook, Record
 from bot.cli.input_error import input_error
 
+from bot.models.phone import Phone
+from bot.models.email import Email
+from bot.models.address import Address
+from bot.models.birthday import Birthday
+
+
 
 console = Console()
 
@@ -331,60 +337,134 @@ def change_contact(args: List[str], address_book: AddressBook) -> str:
     str: Success or error message indicating the result of the operation.
     """
     name_str = " ".join(args)
-
     record = address_book.find(name_str)
 
     if not record:
         return f"Contact '{name_str}' not found. Please check the name."
 
+    # Map the numbers to fields
+    field_map = {
+        "1": "name",
+        "2": "phones",
+        "3": "emails",
+        "4": "address",
+        "5": "birthday"
+    }
+
+    # Function to extract the underlying value from the object
+    def extract_value(obj):
+        if isinstance(obj, Phone):
+            return obj.value  # Phone numbers use 'value'
+        elif isinstance(obj, Email):
+            return obj.value  # Emails use 'address'
+        elif isinstance(obj, Address):
+            return obj.value  # Addresses use 'address'
+        elif isinstance(obj, Birthday):
+            return obj.value.strftime("%d.%m.%Y")
+        else:
+            return str(obj)  # Fallback to string conversion
+
     while True:
         field_to_edit = Prompt.ask(
-            "[cyan]Which field would you like to edit? (name, phones, emails, address, birthday, 'exit' to stop)[/cyan]",
+            """[cyan]
+    Which field would you like to edit?
+    1: Name
+    2: Phones
+    3: Emails
+    4: Address
+    5: Birthday
+
+    Type 'exit' to stop
+    [/cyan]""",
             console=console
         )
 
         if field_to_edit.lower() == 'exit':
             break
         
-        if field_to_edit == "name":
-            # Ask for the new name
-            new_value = Prompt.ask("Enter the new name")
-            
-            # Call edit_field with address_book for name change
-            result = record.edit_field(field_to_edit, None, new_value, address_book)
-            console.print(f"[green]{result}[/green]")
-            # If name changed, update the local reference
-            name_str = new_value
+        if field_to_edit not in field_map:
+            console.print("[red]Invalid option. Please choose a valid number or 'exit' to stop.[/red]")
             continue
+        
+        selected_field = field_map[field_to_edit]
 
-        if field_to_edit.lower() in ["phones", "emails", "address", "birthday"]:
+        # Show all contact information before editing
+        console.print(f"[cyan]Current contact information:[/cyan] {record}")
+
+        if selected_field == "name":
+            # Handle Name Update
+            new_value = Prompt.ask("Enter the new name")
+            result = record.edit_field(selected_field, None, new_value, address_book)
+            console.print(f"[green]{result}[/green]")
+            name_str = new_value  # Update the name if changed
+        else:
             old_value = None
+            current_values = getattr(record, selected_field, None)
 
-            if field_to_edit in ["phones", "emails"]:
-                should_edit_existing = Prompt.ask(
-                    f"Would you like to edit an existing {field_to_edit[:-1]} or add a new one? (edit/add)", 
-                    default="add"
-                ).lower()
+            # Handle fields that store lists (Phones, Emails)
+            if selected_field in ["phones", "emails"]:
+                # Extract the actual values from the objects in the list
+                extracted_values = [extract_value(value) for value in current_values] if current_values else []
 
-                if should_edit_existing == "edit":
-                    old_value = Prompt.ask(f"Enter the current {field_to_edit[:-1]} to be replaced")
+                # Automatically switch to 'add' if there are no current values
+                if not extracted_values:
+                    console.print(f"[yellow]No current {selected_field} found. Switching to add mode.[/yellow]")
+                    action = "add"
+                else:
+                    action = Prompt.ask(
+                        f"Would you like to edit an existing {selected_field[:-1]} or add a new one? (edit/add)",
+                        default="add"
+                    ).lower()
 
-            new_value = Prompt.ask(f"Enter the new value for {field_to_edit} (or leave empty to remove)", default="")
+                if action == "edit":
+                    console.print(f"[cyan]Current {selected_field}:[/cyan] {extracted_values}")
+                    old_value = Prompt.ask(f"Enter the current {selected_field[:-1]} to be replaced")
 
-            # Handle empty values to remove the old value
-            if new_value.strip() == "" and old_value:
-                result = record.edit_field(field_to_edit, old_value, None)
-                console.print(f"[green]The {field_to_edit[:-1]} '{old_value}' has been removed.[/green]")
-            elif new_value.strip() != "":
-                result = record.edit_field(field_to_edit, old_value, new_value)
+                    # Validate that old_value exists in the extracted values
+                    if old_value not in extracted_values:
+                        console.print(f"[red]The {selected_field[:-1]} '{old_value}' does not exist. Please enter a valid {selected_field[:-1]} to edit.[/red]")
+                        continue
+
+                new_value = Prompt.ask(f"Enter the new value for {selected_field} (leave empty to remove)", default="")
+
+                # If the new value is empty and an old value is provided, remove the old value
+                if new_value.strip() == "" and old_value:
+                    result = record.edit_field(selected_field, old_value, None)
+                    console.print(f"[green]{selected_field[:-1].capitalize()} '{old_value}' has been removed.[/green]")
+                elif new_value.strip() != "":
+                    # Check for duplicates in the extracted list before adding
+                    if new_value in extracted_values:
+                        console.print(f"[red]The {selected_field[:-1]} '{new_value}' is already in the list. No duplicates allowed.[/red]")
+                        continue
+
+                    # If no duplicate, proceed to add or replace the value
+                    result = record.edit_field(selected_field, old_value, new_value)
+                    console.print(f"[green]{result}[/green]")
+                else:
+                    console.print(f"[yellow]No action taken.[/yellow]")
+
+            # Handle singular fields (Address, Birthday)
+            elif selected_field in ["address", "birthday"]:
+                current_value = extract_value(current_values) if current_values else None
+
+                if current_value:
+                    console.print(f"[cyan]Current {selected_field}:[/cyan] {current_value}")
+
+                # Ask for new value
+                new_value = Prompt.ask(f"Enter the new value for {selected_field} (this will overwrite the existing value)")
+
+                # Check for duplicates (although less likely for singular fields)
+                if new_value == current_value:
+                    console.print(f"[red]The {selected_field} '{new_value}' is already set. No duplicates allowed.[/red]")
+                    continue
+
+                # Proceed to add or replace the value
+                result = record.edit_field(selected_field, None, new_value)
                 console.print(f"[green]{result}[/green]")
             else:
-                console.print(f"[yellow]No action taken.[/yellow]")
-        else:
-            console.print("[red]Invalid option. Please enter 'name', 'phones', 'emails', 'address', 'birthday', or 'exit' to stop.")
+                console.print(f"[red]Unknown field selected.[/red]")
 
     return "Contact updated successfully."
-
 
 @input_error
 def delete_contact(args: List[str], address_book: AddressBook) -> str:
@@ -401,7 +481,7 @@ def delete_contact(args: List[str], address_book: AddressBook) -> str:
     if len(args) < 1:
         return "Please provide the name of the contact to delete."
     
-    contact_name = args[0]
+    contact_name = " ".join(args)
     
     if contact_name in address_book:
         address_book.delete(contact_name)
