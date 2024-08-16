@@ -362,7 +362,7 @@ def change_contact(args: List[str], address_book: AddressBook) -> str:
         elif isinstance(obj, Birthday):
             return obj.value.strftime("%d.%m.%Y")
         else:
-            return str(obj)  # Fallback to string conversion
+            return str(obj)
 
     while True:
         field_to_edit = Prompt.ask(
@@ -452,7 +452,7 @@ def change_contact(args: List[str], address_book: AddressBook) -> str:
                         elif new_value.strip() != "":
                             if new_value in extracted_values:
                                 console.print(f"[red]The {selected_field[:-1]} '{new_value}' is already in the list.[/red]")
-                                continue  # Continue prompting for valid input
+                                continue
 
                             result = record.edit_field(selected_field, old_value, new_value)
                             console.print(f"[green]{result}[/green]")
@@ -476,7 +476,7 @@ def change_contact(args: List[str], address_book: AddressBook) -> str:
                     try:
                         result = record.edit_field(selected_field, None, new_value)
                         console.print(f"[green]{result}[/green]")
-                        break  # Exit after successful edit
+                        break
                     except ValueError as e:
                         console.print(f"[red]Error: {str(e)}. Please try again.[/red]")
 
