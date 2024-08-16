@@ -479,10 +479,8 @@ def search(args: List[str], address_book: AddressBook) -> str:
     """
     if len(args) == 0:
         raise ValueError("No search input provided.")
-    elif len(args) > 1:
-        raise ValueError("More then one search input provided. One is expected")
-    search_input = args[0]
-    matches = address_book.search_in_fields(search_input.lower())
+
+    matches = address_book.search_in_fields(args)
 
     if matches == None:
         return "No matches found."

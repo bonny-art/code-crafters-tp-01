@@ -75,7 +75,7 @@ class AddressBook(UserDict):
         """
         return self.data.get(name, None)
     
-    def search_in_fields(self, input: str) -> Optional[list[str]]:
+    def search_in_fields(self, args: list[str]) -> Optional[list[str]]:
         """
         Search through name, phones, birthday fields and returns a list of matching records
 
@@ -85,15 +85,19 @@ class AddressBook(UserDict):
         Returns:
             Optional[List[Record]]: The found records list or None if not found.
         """
+        if not self.data:
+            return "No contacts found."
+        search = [arg.lower() for arg in args]
         matching_records = []
         for record in self.data.values():
-            matches = [record.name and record.name.value.lower().startswith(input),
-                       record.phones and any(phone.value.lower().startswith(input) for phone in record.phones),
-                       record.emails and any(email.address.lower().startswith(input) for email in record.emails),
-                       record.address and record.address.value.lower().startswith(input),
-                       type(record.birthday) == Birthday and record.birthday.value.strftime('%d.%m.%Y').startswith(input)]
+            matches = [record.name and record.name.value.lower().startswith(tuple(search)),
+                       record.phones and any(phone.value.lower().startswith(tuple(search)) for phone in record.phones),
+                       record.emails and any(email.address.lower().startswith(tuple(search)) for email in record.emails),
+                       record.address and record.address.value.lower().startswith(tuple(search)),
+                       type(record.birthday) == Birthday and record.birthday.value.strftime('%d.%m.%Y').startswith(tuple(search))]
             if any(matches):
                 matching_records.append(record)
+
         if len(matching_records) > 0:
             table = Table(
                 "Name",
