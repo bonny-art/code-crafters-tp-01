@@ -397,7 +397,7 @@ def show_phone(args: List[str], address_book: AddressBook) -> str:
     if not record:
         return f"No contact found with name {name_str}."
 
-    return str(record)
+    return str([phone.value for phone in record.phones])
 
 @input_error
 def show_all(address_book: AddressBook) -> str:
@@ -413,7 +413,7 @@ def show_all(address_book: AddressBook) -> str:
     if not address_book.data:
         return "No contacts."
 
-    return str(address_book)
+    return address_book.show_all_contacts()
 
 @input_error
 def show_birthday(args: List[str], address_book: AddressBook) -> str:
