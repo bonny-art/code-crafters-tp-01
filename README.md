@@ -1,35 +1,78 @@
-Технiчний опис завдання
+# Overview
 
-☝ В цьому домашньому завданні ви повинні додати функціонал збереження адресної книги на диск та відновлення з диска.
+Contacts Bot is a Python-based terminal application for managing your contacts efficiently. With this bot, you can add, delete, and edit contacts, as well as keep track of birthdays and additional notes for each contact. It’s an ideal tool for anyone looking to organize their contacts directly from the command line.
 
-Для цього — ви маєте вибрати pickle протокол серіалізації/десеріалізації даних та реалізувати методи, які дозволять зберегти всі дані у файл і завантажити їх із файлу.
+# Features
 
-Головна мета, щоб застосунок не втрачав дані після виходу із застосунку та при запуску відновлював їх з файлу. Повинна зберігатися адресна книга з якою ми працювали на попередньому сеансі.
+    - Help: Show help with all commands and descriptions.
+    - Add Contact: Create new contact with name, phone numbers, emails, address and birthday.
+    - Change Contact: Update existing contact information.
+    - Delete Contact: Remove contacts from your list.
+    - Phone: Shows phone number for entered contact name.
+    - All Contacts: Shows list of all contacts.
+    - Search: Returns search resuls for all fields of contacts.
+    - Birthdays: Shows list of upcoming birthdays.
+    - Show Birthday: Shows birthday for specified contact name.
+    - Add Note: Add new note with specified text.
+    - All Notes: Shows of existing notes.
+    - Search Note: Returns search resuls for notes.
+    - Delete Note: Deletes note
+    - Change Note: Updates note text by id.
+    - Add Note Tag: Adds the tag to note id.
+    - Delete Note Tag: Deletes a Tag from the Note
 
-Реалізуйте функціонал для збереження стану AddressBook у файл при закритті програми і відновлення стану при її запуску.
+# Installation
+## Prerequisites
+    - Python 3.8+
+    - pip (Python package installer)
 
-Приклади коду, які стануть в нагоді:
+## Installation Steps
+    1. Clone the repository:
 
-Серіалізація з pickle
+        ```
+        git clone https://github.com/bonny-art/code-crafters-tp-01
+        cd code-crafters-tp-01
+        ```
 
-import pickle
+    2. Install dependencies:
 
-def save_data(book, filename="addressbook.pkl"):
-with open(filename, "wb") as f:
-pickle.dump(book, f)
+        ```
+        pip install -r requirements.txt
+        ```
 
-def load_data(filename="addressbook.pkl"):
-try:
-with open(filename, "rb") as f:
-return pickle.load(f)
-except FileNotFoundError:
-return AddressBook() # Повернення нової адресної книги, якщо файл не знайдено
+    3. Run the bot:
 
-Інтеграція збереження та завантаження в основний цикл
+        ```python main.py
+        ```
 
-def main():
-book = load_data()
+# Usage example
 
-    # Основний цикл програми
+## Adding a Contact
 
-    save_data(book)  # Викликати перед виходом з програми
+    Add a new contact by providing the necessary details such as name, phone numbers, emails, birthday, and address:
+
+```     python main.py
+        add Name
+        1234567890
+        n
+        example@email.com
+        n
+        address
+        01.01.1999
+```
+
+## Listing Contacts
+
+    View all your contacts:
+
+```    all
+```
+
+For other commands details please run 'help' command
+
+# Contributors
+    - https://github.com/bonny-art - TeamLead
+    - https://github.com/Serhii-Palamarchuk - Developer
+    - https://github.com/AndyGrigs - ScrumMaster
+    - https://github.com/AndriiRohovenko - Developer
+    - https://github.com/MarynaKip - Developer
