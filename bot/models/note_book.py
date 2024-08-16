@@ -18,6 +18,10 @@ class NoteBook(UserDict):
 		del self.data[index]
 
 	def search_notes(self, keyword):
+
+		if not keyword:
+			return "Provide at least one search word or tag!"
+
 		if not self.data:
 			return "No notes found."
 		
