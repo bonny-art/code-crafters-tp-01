@@ -147,32 +147,6 @@ class Record:
         self.remove_phone(old_phone_number)
 
 
-    def edit_field(self, field: str, old_value:str, new_value: str) -> str:
-        """
-        Edits a specific field of the contact record.
-
-        Args:
-        - field (str): The field to edit ('name', 'phone', or 'birthday').
-        - new_value (str): The new value for the field.
-
-        Returns:
-        - str: A message indicating the result of the edit.
-        """
-        if field == 'name':
-            self.name = Name(new_value)
-        elif field == 'phones':
-            if self.phones:
-                old_phone = old_value
-                self.edit_phone(old_phone, new_value)
-            else:
-                self.add_phone(new_value)
-        elif field == 'birthday':
-            self.birthday = Birthday(new_value)
-        else:
-            return f"Unknown field '{field}'. Available fields: name, phone, birthday."
-
-        return f"Field '{field}' has been updated to '{new_value}'."
-
     def find_phone(self, phone_number: str) -> Optional[Phone]:
         """
         Finds and returns a phone number from the contact's list.
@@ -210,6 +184,81 @@ class Record:
         if self.birthday is None:
             return "No birthday set"
         return f"{self.name.value}'s birthday is on {self.birthday.value.strftime('%d.%m.%Y')}"
+    
+
+
+    def edit_field(self, field: str, old_value: str, new_value: str, address_book=None):
+        """
+        Edits or removes a specific field of the contact record.
+
+        Args:
+        - field (str): The field to edit ('name', 'phones', 'emails', 'address', 'birthday').
+        - old_value (str): The old value to be replaced (or removed).
+        - new_value (str): The new value for the field. If None, the old value will be removed.
+        - address_book (AddressBook): Required when changing the name to update the AddressBook.
+
+        Returns:
+        - str: A message indicating the result of the edit.
+        """
+        if field == 'name':
+            if not address_book:
+                raise ValueError("AddressBook is required to change the contact's name.")
+            
+            if new_value:
+                # Remove the contact under the old name from the AddressBook
+                old_name = self.name.value
+                address_book.delete(old_name)
+
+                # Update the contact's name in the Record
+                self.name = Name(new_value)
+
+                # Add the contact back to the AddressBook with the new name
+                address_book.add_record(self)
+
+                return f"Name updated from '{old_name}' to '{new_value}'."
+            return "No name change applied."
+
+        elif field == 'phones':
+            if new_value:
+                if old_value:
+                    self.edit_phone(old_value, new_value)
+                    return f"Phone number '{old_value}' updated to '{new_value}'."
+                else:
+                    self.add_phone(new_value)
+                    return f"Phone number '{new_value}' added."
+            elif old_value:
+                self.remove_phone(old_value)
+                return f"Phone number '{old_value}' removed."
+
+        elif field == 'emails':
+            if new_value:
+                if old_value:
+                    self.edit_email(old_value, new_value)
+                    return f"Email '{old_value}' updated to '{new_value}'."
+                else:
+                    self.add_email(new_value)
+                    return f"Email '{new_value}' added."
+            elif old_value:
+                self.remove_email(old_value)
+                return f"Email '{old_value}' removed."
+
+        elif field == 'address':
+            if new_value:
+                self.edit_address(new_value)
+                return f"Address updated to '{new_value}'."
+            else:
+                self.address = None
+                return "Address removed."
+
+        elif field == 'birthday':
+            if new_value:
+                self.birthday = Birthday(new_value)
+                return f"Birthday updated to '{new_value}'."
+            else:
+                self.birthday = None
+                return "Birthday removed."
+
+        return "Unknown action."
 
 
 
