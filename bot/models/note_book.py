@@ -20,7 +20,39 @@ class NoteBook(UserDict):
 	def search_notes(self, keyword):
 		if not self.data:
 			return "No notes found."
-		return self.notes_to_table(f"Found Notes by Keyword '{keyword}'", [note for note in self.data.values() if keyword in note.text])
+		
+		data = []
+
+		if "#" in keyword:
+			keys = [k for k in keyword.split(" ") if "#" in k]
+			data = [note for note in self.data.values() if any(key in note.tags for key in keys)]
+			data = sorted(data, key=lambda note: note.tags)
+			if not data:
+				return "No notes found."
+			return self.notes_to_table(f"Found Notes by Tag '{" ".join(keys)}'", data)
+
+		data = [note for note in self.data.values() if keyword in note.text]
+		if not data:
+			return "No notes found."
+		return self.notes_to_table(f"Found Notes by Keyword '{keyword}'", data)
+
+	def add_tag(self, id: str, tags: List[str]):
+		note = self.data[id]
+		for tag in tags:
+			if tag in self.data[id].tags:
+				continue
+			if "#" not in tag:
+				tag = f"#{tag}"
+			note.tags.append(tag)
+
+	def delete_tag(self, id: str, tags: List[str]):
+		note = self.data[id]
+		for tag in tags:
+			if tag in self.data[id].tags:
+				continue
+			if "#" not in tag:
+				tag = f"#{tag}"
+			note.tags.remove(tag)
 
 	def search_by_tag(self, tag):
 		return [note for note in self.data if tag in note.tags]
@@ -41,12 +73,14 @@ class NoteBook(UserDict):
 		table.add_column("Id", style="green", justify="center", width=40)
 		table.add_column("Creation Date", style="green", justify="center", width=30)
 		table.add_column("Text", style="green", justify="left", width=60, no_wrap=False)
+		table.add_column("Tags", style="green", justify="left", width=15, no_wrap=False)
 
 		for n in notes:
 			table.add_row(
                             str(n.id),
                             n.create_date.strftime("%Y-%m-%d %H:%M:%S"),
-                            str(n.text)
+                            str(n.text),
+							" ".join(n.tags)
                         )
 		console = Console()
 		with StringIO() as buf:

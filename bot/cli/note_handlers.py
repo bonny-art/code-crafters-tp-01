@@ -65,6 +65,28 @@ def search_note(args: List[str], note_book: NoteBook) -> str:
     search = " ".join(args)
     return note_book.search_notes(search)
 
+@input_error
+def add_note_tag(args: List[str], note_book: NoteBook) -> str:
+    if len(args) == 0:
+        raise ValueError("No id and tag provided.")
+    if len(args) == 1:
+        raise ValueError("No tag provided.")
+    id = args[0]
+    tags = args[1:]
+    note_book.add_tag(id, tags)
+    return "Tag added."
+
+@input_error
+def delete_note_tag(args: List[str], note_book: NoteBook) -> str:
+    if len(args) == 0:
+        raise ValueError("No id and tag provided.")
+    if len(args) == 1:
+        raise ValueError("No tag provided.")
+    id = args[0]
+    tags = args[1:]
+    note_book.delete_tag(id, tags)
+    return "Tag deleted."
+
 if __name__ == "__main__":
     print()
 
