@@ -354,15 +354,15 @@ def change_contact(args: List[str], address_book: AddressBook) -> str:
     # Function to extract the underlying value from the object
     def extract_value(obj):
         if isinstance(obj, Phone):
-            return obj.value  # Phone numbers use 'value'
+            return obj.value
         elif isinstance(obj, Email):
-            return obj.value  # Emails use 'address'
+            return obj.address
         elif isinstance(obj, Address):
-            return obj.value  # Addresses use 'address'
+            return obj.value
         elif isinstance(obj, Birthday):
             return obj.value.strftime("%d.%m.%Y")
         else:
-            return str(obj)  # Fallback to string conversion
+            return str(obj)
 
     while True:
         field_to_edit = Prompt.ask(
@@ -391,78 +391,94 @@ def change_contact(args: List[str], address_book: AddressBook) -> str:
         # Show all contact information before editing
         console.print(f"[cyan]Current contact information:[/cyan] {record}")
 
+        # Handle Name Editing
         if selected_field == "name":
-            # Handle Name Update
-            new_value = Prompt.ask("Enter the new name")
-            result = record.edit_field(selected_field, None, new_value, address_book)
-            console.print(f"[green]{result}[/green]")
-            name_str = new_value  # Update the name if changed
+            while True:
+                new_value = Prompt.ask("Enter the new name (or type 'back' to cancel)")
+                if new_value.lower() == 'back':
+                    break
+                try:
+                    result = record.edit_field(selected_field, None, new_value, address_book)
+                    console.print(f"[green]{result}[/green]")
+                    name_str = new_value  # Update the name if changed
+                    break
+                except ValueError as e:
+                    console.print(f"[red]Error: {str(e)}. Please try again.[/red]")
+
         else:
             old_value = None
             current_values = getattr(record, selected_field, None)
 
             # Handle fields that store lists (Phones, Emails)
             if selected_field in ["phones", "emails"]:
-                # Extract the actual values from the objects in the list
                 extracted_values = [extract_value(value) for value in current_values] if current_values else []
 
-                # Automatically switch to 'add' if there are no current values
                 if not extracted_values:
                     console.print(f"[yellow]No current {selected_field} found. Switching to add mode.[/yellow]")
                     action = "add"
                 else:
                     action = Prompt.ask(
-                        f"Would you like to edit an existing {selected_field[:-1]} or add a new one? (edit/add)",
+                        f"Would you like to edit an existing {selected_field[:-1]} or add a new one? (edit/add or type 'back' to cancel)",
                         default="add"
                     ).lower()
 
+                # Handle exit action
+                if action == "back":
+                    continue  # Return to the field selection menu
+
                 if action == "edit":
                     console.print(f"[cyan]Current {selected_field}:[/cyan] {extracted_values}")
-                    old_value = Prompt.ask(f"Enter the current {selected_field[:-1]} to be replaced")
+                    old_value = Prompt.ask(f"Enter the current {selected_field[:-1]} to be replaced (or type 'back' to cancel)")
+                    if old_value.lower() == 'back':
+                        continue
 
-                    # Validate that old_value exists in the extracted values
                     if old_value not in extracted_values:
-                        console.print(f"[red]The {selected_field[:-1]} '{old_value}' does not exist. Please enter a valid {selected_field[:-1]} to edit.[/red]")
+                        console.print(f"[red]The {selected_field[:-1]} '{old_value}' does not exist.[/red]")
                         continue
 
-                new_value = Prompt.ask(f"Enter the new value for {selected_field} (leave empty to remove)", default="")
+                # Editing or adding loop with exception handling
+                while True:
+                    new_value = Prompt.ask(f"Enter the new value for {selected_field} (leave empty to remove or type 'back' to cancel)", default="")
+                    if new_value.lower() == 'back':
+                        break
 
-                # If the new value is empty and an old value is provided, remove the old value
-                if new_value.strip() == "" and old_value:
-                    result = record.edit_field(selected_field, old_value, None)
-                    console.print(f"[green]{selected_field[:-1].capitalize()} '{old_value}' has been removed.[/green]")
-                elif new_value.strip() != "":
-                    # Check for duplicates in the extracted list before adding
-                    if new_value in extracted_values:
-                        console.print(f"[red]The {selected_field[:-1]} '{new_value}' is already in the list. No duplicates allowed.[/red]")
-                        continue
+                    try:
+                        if new_value.strip() == "" and old_value:
+                            result = record.edit_field(selected_field, old_value, None)
+                            console.print(f"[green]{selected_field[:-1].capitalize()} '{old_value}' has been removed.[/green]")
+                            break
 
-                    # If no duplicate, proceed to add or replace the value
-                    result = record.edit_field(selected_field, old_value, new_value)
-                    console.print(f"[green]{result}[/green]")
-                else:
-                    console.print(f"[yellow]No action taken.[/yellow]")
+                        # Handle duplication check
+                        elif new_value.strip() != "":
+                            if new_value in extracted_values:
+                                console.print(f"[red]The {selected_field[:-1]} '{new_value}' is already in the list.[/red]")
+                                continue
 
-            # Handle singular fields (Address, Birthday)
+                            result = record.edit_field(selected_field, old_value, new_value)
+                            console.print(f"[green]{result}[/green]")
+                            break
+                    except ValueError as e:
+                        console.print(f"[red]Error: {str(e)}. Please try again.[/red]")
+
+            # Handle fields (Address, Birthday) with exception handling
             elif selected_field in ["address", "birthday"]:
                 current_value = extract_value(current_values) if current_values else None
 
                 if current_value:
                     console.print(f"[cyan]Current {selected_field}:[/cyan] {current_value}")
 
-                # Ask for new value
-                new_value = Prompt.ask(f"Enter the new value for {selected_field} (this will overwrite the existing value)")
+                # Editing loop for Address and Birthday with exception handling
+                while True:
+                    new_value = Prompt.ask(f"Enter the new value for {selected_field} (this will overwrite the existing value, or type 'back' to cancel)")
+                    if new_value.lower() == 'back':
+                        break
 
-                # Check for duplicates (although less likely for singular fields)
-                if new_value == current_value:
-                    console.print(f"[red]The {selected_field} '{new_value}' is already set. No duplicates allowed.[/red]")
-                    continue
-
-                # Proceed to add or replace the value
-                result = record.edit_field(selected_field, None, new_value)
-                console.print(f"[green]{result}[/green]")
-            else:
-                console.print(f"[red]Unknown field selected.[/red]")
+                    try:
+                        result = record.edit_field(selected_field, None, new_value)
+                        console.print(f"[green]{result}[/green]")
+                        break
+                    except ValueError as e:
+                        console.print(f"[red]Error: {str(e)}. Please try again.[/red]")
 
     return "Contact updated successfully."
 
