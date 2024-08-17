@@ -4,22 +4,24 @@ Contacts Bot is a Python-based terminal application for managing your contacts e
 
 # Features
 
-- Help: Show help with all commands and descriptions.
-- Add Contact: Create new contact with name, phone numbers, emails, address and birthday.
-- Change Contact: Update existing contact information.
-- Delete Contact: Remove contacts from your list.
-- Phone: Shows phone number for entered contact name.
-- All Contacts: Shows list of all contacts.
-- Search: Returns search resuls for all fields of contacts.
-- Birthdays: Shows list of upcoming birthdays.
-- Show Birthday: Shows birthday for specified contact name.
-- Add Note: Add new note with specified text.
-- All Notes: Shows of existing notes.
-- Search Note: Returns search resuls for notes.
-- Delete Note: Deletes note
-- Change Note: Updates note text by id.
-- Add Note Tag: Adds the tag to note id.
-- Delete Note Tag: Deletes a Tag from the Note
+- hello: Greet the user.
+- help: Display this help message.
+- add-contact: Add a new contact. Usage: `add-contact <name>`
+- change-contact: Update an existing contact. Usage: `change-contact <name>`
+- delete-contact: Remove a contact by name. Usage: `delete-contact <name>`
+- all-contacts: Display all contacts.
+- search-contact: Display contacts that match the entered input. Usage: `search-contact <input>`
+- show-phones: Display a contact's phone number(s). Usage: `show-phones <name>`
+- show-birthday: Display a contact's birthday. Usage: `show-birthday <name>`
+- birthdays: List upcoming birthdays. By default, lists birthdays within 7 days. Usage: `birthdays [<number_of_days>]`
+- add-note: Add a new note. Usage: `add-note <note text>`
+- change-note: Update an existing note with new text. Usage: `change-note <id> <new_text>`
+- delete-note: Remove a note by ID. Usage: `delete-note <id>`
+- all-notes: Display all notes.
+- search-note: Search for notes. Usage by text: `search-note <input>`. Usage by tags: `search-note #<tag> #<tag2>`
+- add-note-tag: Add a tag to a note. Usage: `add-note-tag <id> <tag1> [<tag2> ... <tagN>]`
+- delete-note-tag: Remove a tag from a note. Usage: `delete-note-tag <id> <tag>`
+- close or exit: Exit the program.
 
 # Installation
 ## Prerequisites
