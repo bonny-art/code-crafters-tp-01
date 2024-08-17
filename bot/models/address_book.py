@@ -27,6 +27,7 @@ Example:
 from datetime import datetime, timedelta, date
 from typing import Optional
 from collections import UserDict
+
 from io import StringIO
 from rich.table import Table
 from rich.console import Console
@@ -74,7 +75,7 @@ class AddressBook(UserDict):
             Optional[Record]: The found record or None if not found.
         """
         return self.data.get(name, None)
-    
+
     def search_in_fields(self, args: list[str]) -> Optional[list[str]]:
         """
         Search through name, phones, birthday fields and returns a list of matching records
@@ -90,11 +91,39 @@ class AddressBook(UserDict):
         search = [arg.lower() for arg in args]
         matching_records = []
         for record in self.data.values():
-            matches = [record.name and record.name.value.lower().startswith(tuple(search)),
-                       record.phones and any(phone.value.lower().startswith(tuple(search)) for phone in record.phones),
-                       record.emails and any(email.address.lower().startswith(tuple(search)) for email in record.emails),
-                       record.address and record.address.value.lower().startswith(tuple(search)),
-                       type(record.birthday) == Birthday and record.birthday.value.strftime('%d.%m.%Y').startswith(tuple(search))]
+            name_check = (
+                record.name and
+                record.name.value.lower().startswith(tuple(search))
+            )
+
+            phones_check = (
+                record.phones and
+                any(phone.value.lower().startswith(tuple(search)) for phone in record.phones)
+            )
+
+            emails_check = (
+                record.emails and
+                any(email.address.lower().startswith(tuple(search)) for email in record.emails)
+            )
+
+            address_check = (
+                record.address and
+                record.address.value.lower().startswith(tuple(search))
+            )
+
+            birthday_check = (
+                isinstance(record.birthday, Birthday) and
+                record.birthday.value.strftime('%d.%m.%Y').startswith(tuple(search))
+            )
+
+            matches = [
+                name_check,
+                phones_check,
+                emails_check,
+                address_check,
+                birthday_check
+            ]
+
             if any(matches):
                 matching_records.append(record)
 
@@ -114,13 +143,26 @@ class AddressBook(UserDict):
                 header_style="bold cyan"
             )
             for record in matching_records:
-                table.add_row(
-                    record.name.value,
-                    record.birthday.value.strftime('%d.%m.%Y') if record.birthday else '---',
-                    ', '.join([phone.value for phone in record.phones]) if len(record.phones) > 0 else '---',
-                    ', '.join([email.address for email in record.emails]) if len(record.emails) > 0 else '---',
-                    record.address.value if record.address else '---'
-                    )
+                name = record.name.value
+                birthday = (
+                    record.birthday.value.strftime('%d.%m.%Y')
+                    if record.birthday
+                    else '---'
+                )
+                phones = (
+                    ', '.join(phone.value for phone in record.phones) 
+                    if record.phones
+                    else '---'
+                )
+                emails = (
+                    ', '.join(email.address for email in record.emails) 
+                    if record.emails
+                    else '---'
+                )
+                address = record.address.value if record.address else '---'
+
+                table.add_row(name, birthday, phones, emails, address)
+
             console = Console()
             console.print(table)
             return ""
@@ -199,8 +241,8 @@ class AddressBook(UserDict):
         table.add_column("Congratulation Date", style="sky_blue3", justify="center", width=15)
         table.add_column("Phone\n", style="sky_blue3", justify="center", width=15)
 
-
         today_date = datetime.now().date()
+        has_birthdays = False
 
         for record in self.data.values():
             if record.birthday:
@@ -225,9 +267,13 @@ class AddressBook(UserDict):
                             congratulation_date.strftime('%d.%m.%Y'),
                             phone_number
                         )
+                        has_birthdays = True
 
                 except ValueError:
                     pass
+
+        if not has_birthdays:
+            return f"There are no upcoming birthdays within {days} days."
 
         console = Console()
         with StringIO() as buf:
@@ -245,6 +291,9 @@ class AddressBook(UserDict):
             str: A formatted string containing all contacts in the address book,
                 displayed as a table.
         """
+        if not self.data:
+            return "No contacts found."
+
         table = Table(
             title="All Contacts",
             title_style="bold orange1",
@@ -258,20 +307,24 @@ class AddressBook(UserDict):
         table.add_column("Name\n", style="dark_orange", width=20)
         table.add_column("Phones\n", style="sky_blue3", justify="center", width=16)
         table.add_column("Emails\n", style="sky_blue3", justify="center", width=30)
-        table.add_column("Adress\n", style="sky_blue3", justify="center")
+        table.add_column("Address\n", style="sky_blue3", justify="center")
         table.add_column("Birthday\n", style="sky_blue3", justify="center", width=16)
 
         for record in self.data.values():
-            phone_numbers = '\n'.join(phone.value for phone in record.phones) if record.phones else '---'
+            phone_numbers = (
+                '\n'.join(phone.value for phone in record.phones)
+                if record.phones
+                else '---'
+            )
             emails = '\n'.join(email.address for email in record.emails) if record.emails else '---'
-            adress = record.get_address() if record.get_address() else '---'
+            address = record.get_address() if record.get_address() else '---'
             birthday = record.birthday.value.strftime('%d.%m.%Y') if record.birthday else '---'
 
             table.add_row(
                 record.name.value,
                 phone_numbers,
                 emails,
-                adress,
+                address,
                 birthday
             )
 
@@ -282,7 +335,6 @@ class AddressBook(UserDict):
             table_output = buf.getvalue()
 
         return table_output
-
 
     def __str__(self) -> str:
         """

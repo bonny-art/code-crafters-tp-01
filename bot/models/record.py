@@ -38,51 +38,51 @@ class Record:
         self.birthday = None
         self.address = None
 
-    #----AndrGR-----------------------------------------------------------------
-    def add_email(self, email_address: str) -> None:
+#------------------------------------------------------------------
 
+    def add_email(self, email_address: str) -> None:
+        """
+        Adds an email address to the contact's list of emails.
+
+        If the emails list does not exist, it initializes it first.
+
+        Args:
+        - email_address (str): The email address to add.
+        """
         if not hasattr(self, 'emails'):
             self.emails = []
 
         email = Email(email_address)
         self.emails.append(email)
 
+#------------------------------------------------------------------
+
     def remove_email(self, email_address:str) -> None:
         """
-        Removes an email address from the contact's list of emails.
+        Removes an email address from the contact's list of email addresses.
 
         Args:
         - email_address (str): The email address to remove.
+
+        Returns:
+        - None
         """
         self.emails = [e for e in self.emails if e.address != email_address]
 
+#------------------------------------------------------------------
+
     def edit_email(self, old_email:str, new_email:str) -> None:
         """
-        Replaces an old email address with a new one in the contact's list.
+        Replaces an old email address with a new one in the contact's list of emails.
 
         Args:
-        - old_email_address (str): The email address to replace.
-        - new_email_address (str): The new email address to add.
+        - old_email (str): The email address to replace.
+        - new_email (str): The new email address to add.
         """
         self.add_email(new_email)
         self.remove_email(old_email)
 
-    def find_email(self, email_address:str) -> Optional[Email]:
-        """
-        Finds and returns an email address from the contact's list.
-
-        Args:
-        - email_address (str): The email address to find.
-
-        Returns:
-        - Email or None: The Email instance if found, otherwise None.
-        """
-        for email in self.emails:
-            if email.address == email_address:
-                return email
-        return None
-
-    #__________________________________________________________________________
+#------------------------------------------------------------------
 
     def add_address(self, address_str: str) -> None:
         """
@@ -93,6 +93,8 @@ class Record:
         """
         self.address = Address(address_str)
 
+#------------------------------------------------------------------
+
     def edit_address(self, new_address_str: str) -> None:
         """
         Edits the contact's address.
@@ -101,6 +103,8 @@ class Record:
         - new_address_str (str): The new address to set.
         """
         self.address = Address(new_address_str)
+
+#------------------------------------------------------------------
 
     def get_address(self) -> Optional[str]:
         """
@@ -111,9 +115,7 @@ class Record:
         """
         return self.address.value if self.address else None
 
-
-    #----AndrGR-----------------------------------------------------------------
-
+#------------------------------------------------------------------
 
     def add_phone(self, phone_number: str) -> None:
         """
@@ -125,6 +127,8 @@ class Record:
         phone = Phone(phone_number)
         self.phones.append(phone)
 
+#------------------------------------------------------------------
+
     def remove_phone(self, phone_number: str) -> None:
         """
         Removes a phone number from the contact's list of phone numbers.
@@ -133,6 +137,8 @@ class Record:
         - phone_number (str): The phone number to remove.
         """
         self.phones = [p for p in self.phones if p.value != phone_number]
+
+#------------------------------------------------------------------
 
     def edit_phone(self, old_phone_number: str, new_phone_number: str) -> None:
         """
@@ -146,21 +152,19 @@ class Record:
         self.add_phone(new_phone_number)
         self.remove_phone(old_phone_number)
 
+#------------------------------------------------------------------
 
-    def find_phone(self, phone_number: str) -> Optional[Phone]:
+    def show_formated_phones(self) -> str:
         """
-        Finds and returns a phone number from the contact's list.
-
-        Args:
-        - phone_number (str): The phone number to find.
-
+        Returns a formatted string of the contact's name and phone numbers.
+        
         Returns:
-        - Phone or None: The Phone instance if found, otherwise None.
+        - str: A string in the format 'name: phone1, phone2, ...'.
         """
-        for phone in self.phones:
-            if phone.value == phone_number:
-                return phone
-        return None
+        phones = ", ".join(f"[cyan]{phone.value}[/cyan]" for phone in self.phones)
+        return f"[dark_orange]{self.name.value}:[/dark_orange] {phones}"
+
+#------------------------------------------------------------------
 
     def add_birthday(self, birthday: str) -> None:
         """
@@ -174,6 +178,8 @@ class Record:
         else:
             raise ValueError("Birthday is already set")
 
+#------------------------------------------------------------------
+
     def show_birthday(self) -> str:
         """
         Returns a string representation of the contact's birthday.
@@ -184,26 +190,26 @@ class Record:
         if self.birthday is None:
             return "No birthday set"
         return f"{self.name.value}'s birthday is on {self.birthday.value.strftime('%d.%m.%Y')}"
-    
 
+#------------------------------------------------------------------
 
     def edit_field(self, field: str, old_value: str, new_value: str, address_book=None):
         """
         Edits or removes a specific field of the contact record.
 
         Args:
-        - field (str): The field to edit ('name', 'phones', 'emails', 'address', 'birthday').
-        - old_value (str): The old value to be replaced (or removed).
-        - new_value (str): The new value for the field. If None, the old value will be removed.
-        - address_book (AddressBook): Required when changing the name to update the AddressBook.
+        - field (str): The field to edit. Options include 'name', 'phones', 'emails', 'address', and 'birthday'.
+        - old_value (str): The current value to be replaced or removed. This is required when editing.
+        - new_value (str): The new value to set for the field. If None, the old value will be removed.
+        - address_book (AddressBook, optional): An instance of AddressBook, required only when changing the contact's name to update the AddressBook accordingly.
 
         Returns:
-        - str: A message indicating the result of the edit.
+        - str: A message indicating the result of the edit. Describes what changes were made or if no change was applied.
         """
         if field == 'name':
             if not address_book:
                 raise ValueError("AddressBook is required to change the contact's name.")
-            
+
             if new_value:
                 # Remove the contact under the old name from the AddressBook
                 old_name = self.name.value
@@ -260,7 +266,7 @@ class Record:
 
         return "Unknown action."
 
-
+#------------------------------------------------------------------
 
     def __str__(self) -> str:
         """

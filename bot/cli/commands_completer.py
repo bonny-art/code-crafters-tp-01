@@ -1,5 +1,21 @@
-from bot.cli.handlers import show_help
+"""
+This module provides a custom command-line auto-completer for the bot's CLI.
+
+Classes:
+- CommandCompleter: A custom completer for command-line input that provides
+  auto-completion suggestions for the first word (command) in the input.
+
+Functions:
+- show_help: Retrieves the list of available commands and their descriptions.
+
+Usage:
+- The CommandCompleter class is used to provide suggestions for the available
+  commands in the bot's CLI as the user types.
+"""
+
 from prompt_toolkit.completion import Completer, Completion
+
+from bot.cli.handlers import show_help
 
 class CommandCompleter(Completer):
     """
@@ -32,7 +48,10 @@ class CommandCompleter(Completer):
         commands, _ = show_help()
         for command in commands:
             if command.startswith(text_before_cursor):
-                yield Completion(command.split(":")[0], start_position=-len(text_before_cursor))
+                completion_text = command.split(':', maxsplit=1)[0]
+                start_pos = -len(text_before_cursor)
+                yield Completion(completion_text, start_position=start_pos)
+
 
 
 # Initialize the CommandCompleter
@@ -41,7 +60,7 @@ completer = CommandCompleter()
 # Save the history file on exit
 HISTORY_FILE = '.console_bot_history'
 try:
-    with open(HISTORY_FILE, 'r') as f:
+    with open(HISTORY_FILE, 'r', encoding='utf-8') as f:
         history = f.read().splitlines()
 except FileNotFoundError:
     history = []
