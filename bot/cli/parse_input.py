@@ -23,12 +23,3 @@ def parse_input(user_input: str) -> tuple:
     cmd, *args = user_input.split()
     cmd = cmd.strip().lower()
     return cmd, *args
-
-if __name__ == "__main__":
-    print(parse_input('hello'))  # ('hello', [])
-    print(parse_input('add Mary 1234567'))  # ('add', ['Mary', '1234567'])
-    print(parse_input('change Mary 7654321'))  # ('change', ['Mary', '7654321'])
-    print(parse_input('phone Mary'))  # ('phone', ['Mary'])
-    print(parse_input('all'))  # ('all', [])
-    print(parse_input('exit'))  # ('exit', [])
-    print(parse_input('invalid_command'))  # ('invalid_command', [])
