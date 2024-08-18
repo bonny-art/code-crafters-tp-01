@@ -40,7 +40,7 @@ def add_note(args: List[str], note_book: NoteBook) -> str:
     - str: A message indicating the note was added.
     """
     if len(args) == 0:
-        raise ValueError("No note text provided.")
+        raise ValueError("No note text provided. Usage: add-note <note text>")
     note = Note(" ".join(args))
     note_book.add_note(note)
     return "Note added."
@@ -58,9 +58,9 @@ def delete_note(args: List[str], note_book: NoteBook) -> str:
     - str: A message indicating the note was deleted.
     """
     if len(args) == 0:
-        raise ValueError("No note ID provided.")
+        raise ValueError("No note ID provided. Usage: delete-note <id>")
     if len(args) > 1:
-        raise ValueError("More than one note ID provided.")
+        raise ValueError("More than one note ID provided. Usage: delete-note <id>")
     note_book.delete_note(args[0])
     return "Note deleted."
 
@@ -77,9 +77,9 @@ def change_note(args: List[str], note_book: NoteBook) -> str:
     - str: A message indicating the note was changed.
     """
     if len(args) == 0:
-        raise ValueError("No note ID provided.")
+        raise ValueError("No note ID provided. Usage: change-note <id> <new_text>")
     if len(args) == 1:
-        raise ValueError("No text provided.")
+        raise ValueError("No text provided. Usage: change-note <id> <new_text>")
     note_id = args[0]
     text = " ".join(args[1:])
     note_book.change_note(note_id, text)
@@ -128,9 +128,12 @@ def add_note_tag(args: List[str], note_book: NoteBook) -> str:
     - str: A message indicating the tags were added.
     """
     if len(args) == 0:
-        raise ValueError("No note ID and tag provided.")
+        raise ValueError(
+            "No note ID and tag provided. "
+            "Usage: add-note-tag <id> <tag1> [<tag2> ... <tagN>]"
+        )
     if len(args) == 1:
-        raise ValueError("No tag provided.")
+        raise ValueError("No tag provided. Usage: add-note-tag <id> <tag1> [<tag2> ... <tagN>]")
     note_id = args[0]
     tags = args[1:]
     note_book.add_tag(note_id, tags)
@@ -149,9 +152,9 @@ def delete_note_tag(args: List[str], note_book: NoteBook) -> str:
     - str: A message indicating the tags were deleted.
     """
     if len(args) == 0:
-        raise ValueError("No note ID and tag provided.")
+        raise ValueError("No note ID and tag provided. delete-note-tag <id> <tag>")
     if len(args) == 1:
-        raise ValueError("No tag provided.")
+        raise ValueError("No tag provided. delete-note-tag <id> <tag>")
     note_id = args[0]
     tags = args[1:]
     note_book.delete_tag(note_id, tags)

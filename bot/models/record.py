@@ -198,13 +198,18 @@ class Record:
         Edits or removes a specific field of the contact record.
 
         Args:
-        - field (str): The field to edit. Options include 'name', 'phones', 'emails', 'address', and 'birthday'.
-        - old_value (str): The current value to be replaced or removed. This is required when editing.
-        - new_value (str): The new value to set for the field. If None, the old value will be removed.
-        - address_book (AddressBook, optional): An instance of AddressBook, required only when changing the contact's name to update the AddressBook accordingly.
+        - field (str): The field to edit. Options include 'name', 'phones', 'emails',
+        'address', and 'birthday'.
+        - old_value (str): The current value to be replaced or removed. This is required
+        when editing.
+        - new_value (str): The new value to set for the field. If None, the old value will
+        be removed.
+        - address_book (AddressBook, optional): An instance of AddressBook, required only
+        when changing the contact's name to update the AddressBook accordingly.
 
         Returns:
-        - str: A message indicating the result of the edit. Describes what changes were made or if no change was applied.
+        - str: A message indicating the result of the edit. Describes what changes were made
+        or if no change was applied.
         """
         if field == 'name':
             if not address_book:
@@ -291,4 +296,10 @@ class Record:
         else:
             birthday_str = "----------"
 
-        return f"Contact name: {self.name.value}, birthday: {birthday_str}, phones: {phones_str}, emails: {emails_str}, address: {address_str}"
+        return (
+            f"Contact name: {self.name.value}, "
+            f"birthday: {birthday_str}, "
+            f"phones: {phones_str}, "
+            f"emails: {emails_str}, "
+            f"address: {address_str}"
+        )

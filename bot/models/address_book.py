@@ -2,19 +2,21 @@
 This module provides the AddressBook class, which is used to manage a collection of contact records.
 
 Classes:
-- AddressBook: A class that extends UserDict to manage a collection of contact records.
-It supports adding, finding, and deleting contacts.
+- AddressBook: A class that extends UserDict to manage a collection of contact records. 
+  It supports adding, finding, searching, deleting contacts, and displaying information about them.
 
 Imports:
 - UserDict from collections: A dictionary-like class that allows extension and customization.
-- Record from .record: A class representing a contact record, which includes contact name
-and phone numbers.
+- Record from .record: A class representing a contact record, which includes contact name and
+phone numbers.
+- Birthday from bot.models.birthday: A class representing a birthday.
 
 Usage:
-- The AddressBook class provides methods to add new contact records, find existing records
-by name, and delete records by name.
-- Each record in the address book is identified by the contact's name, which is used as
-the key in the underlying dictionary.
+- The AddressBook class provides methods to add new contact records, find existing records by name, 
+  search through various fields, delete records by name, and display upcoming birthdays and
+  contact details.
+- Each record in the address book is identified by the contact's name, which is used as the key
+in the underlying dictionary.
 
 Example:
     address_book = AddressBook()
@@ -22,10 +24,13 @@ Example:
     address_book.add_record(record)
     found_record = address_book.find("John Doe")
     address_book.delete("John Doe")
+    upcoming_birthdays = address_book.get_upcoming_birthdays(7)
+    single_contact_info = address_book.show_single_contact(record)
+    all_contacts_info = address_book.show_all_contacts()
 """
 
 from datetime import datetime, timedelta, date
-from typing import Optional
+from typing import Optional, List
 from collections import UserDict
 
 from io import StringIO
@@ -33,13 +38,12 @@ from rich.table import Table
 from rich.console import Console
 
 from bot.models.birthday import Birthday
-
 from .record import Record
 
 class AddressBook(UserDict):
     """
     AddressBook is a collection of contact records that allows adding,
-    finding, and deleting contacts.
+    searching, deleting contacts, and displaying information about them.
 
     Methods:
         add_record(record: Record) -> None:
@@ -48,11 +52,25 @@ class AddressBook(UserDict):
         find(name: str) -> Optional[Record]:
             Finds and returns a record by the contact's name.
 
+        search_in_fields(args: list[str]) -> Optional[list[Record]]:
+            Searches through name, phones, emails, address, and birthday fields 
+            and returns a list of matching records.
+
         delete(name: str) -> None:
             Deletes a record from the address book by the contact's name.
 
-        get_upcoming_birthdays() -> List[Dict[str, str]]:
-            Returns a list of upcoming birthdays within the next 7 days.
+        get_upcoming_birthdays(days: int) -> str:
+            Returns a formatted string of upcoming birthdays within the next specified
+            number of days.
+
+        show_single_contact(record: Record) -> str:
+            Returns a formatted string of a single contact in the address book.
+
+        show_all_contacts() -> str:
+            Returns a formatted string of all contacts in the address book.
+
+        __str__() -> str:
+            Returns a string representation of all records in the address book.
     """
 
     def add_record(self, record: Record) -> None:
@@ -76,15 +94,16 @@ class AddressBook(UserDict):
         """
         return self.data.get(name, None)
 
-    def search_in_fields(self, args: list[str]) -> Optional[list[str]]:
+    def search_in_fields(self, args: list[str]) -> Optional[List[Record]]:
         """
-        Search through name, phones, birthday fields and returns a list of matching records
+        Searches through name, phones, emails, address, and birthday fields 
+        and returns a list of matching records.
 
         Args:
-            input(str): the str value to search through all fields.
+            args (list[str]): The search terms to look for in the contact fields.
             
         Returns:
-            Optional[List[Record]]: The found records list or None if not found.
+            Optional[List[Record]]: The found records list or None if no matches are found.
         """
         if not self.data:
             return "No contacts found."
@@ -169,7 +188,6 @@ class AddressBook(UserDict):
         else:
             return None
 
-
     def delete(self, name: str) -> None:
         """
         Deletes a record from the address book by the contact's name.
@@ -223,9 +241,13 @@ class AddressBook(UserDict):
         """
         Returns a formatted string of upcoming birthdays within the next specified number of days.
 
+        Args:
+            days (int): The number of days within which to find upcoming birthdays.
+
         Returns:
             str: A formatted string containing the name and birthday date of contacts
-                with upcoming birthdays, displayed as a table.
+                with upcoming birthdays, displayed as a table. If no upcoming birthdays are found,
+                returns a message indicating this.
         """
         table = Table(
             title=f"Upcoming Birthdays within {days} Days",
@@ -238,8 +260,9 @@ class AddressBook(UserDict):
         )
 
         table.add_column("Name\n", style="dark_orange", width=20)
-        table.add_column("Congratulation Date", style="sky_blue3", justify="center", width=15)
-        table.add_column("Phone\n", style="sky_blue3", justify="center", width=15)
+        table.add_column("Congratulation Date", style="green", justify="center", width=16)
+        table.add_column("Phones\n", style="green", justify="center", width=16)
+        table.add_column("Emails\n", style="green", justify="center", width=30)
 
         today_date = datetime.now().date()
         has_birthdays = False
@@ -260,12 +283,22 @@ class AddressBook(UserDict):
                             congratulation_date = birthday_this_year
 
                         congratulation_date = self._adjust_to_weekday(congratulation_date)
-                        phone_number = record.phones[0].value if record.phones else '---'
+                        phone_numbers = (
+                            '\n'.join(phone.value for phone in record.phones)
+                            if record.phones
+                            else '---'
+                        )
+                        emails = (
+                            '\n'.join(email.address for email in record.emails)
+                            if record.emails
+                            else '---'
+                        )
 
                         table.add_row(
                             record.name.value,
                             congratulation_date.strftime('%d.%m.%Y'),
-                            phone_number
+                            phone_numbers,
+                            emails
                         )
                         has_birthdays = True
 
@@ -274,6 +307,57 @@ class AddressBook(UserDict):
 
         if not has_birthdays:
             return f"There are no upcoming birthdays within {days} days."
+
+        console = Console()
+        with StringIO() as buf:
+            console.file = buf
+            console.print(table)
+            table_output = buf.getvalue()
+
+        return table_output
+
+    def show_single_contact(self, record: Record) -> str:
+        """
+        Returns a formatted string of a single contact in the address book.
+
+        Args:
+            record (Record): The contact record to be displayed.
+
+        Returns:
+            str: A formatted string containing the contact information displayed as a table.
+        """
+        table = Table(
+            title="Contact Details",
+            title_style="bold orange1",
+            border_style="gray50",
+            padding=(0, 2),
+            show_header=True,
+            show_lines=True,
+            header_style="bold cyan"
+        )
+
+        table.add_column("Name\n", style="dark_orange", width=20)
+        table.add_column("Phones\n", style="green", justify="center", width=16)
+        table.add_column("Emails\n", style="green", justify="center", width=30)
+        table.add_column("Address\n", style="green", justify="center")
+        table.add_column("Birthday\n", style="green", justify="center", width=16)
+
+        phone_numbers = (
+            '\n'.join(phone.value for phone in record.phones)
+            if record.phones
+            else '---'
+        )
+        emails = '\n'.join(email.address for email in record.emails) if record.emails else '---'
+        address = record.get_address() if record.get_address() else '---'
+        birthday = record.birthday.value.strftime('%d.%m.%Y') if record.birthday else '---'
+
+        table.add_row(
+            record.name.value,
+            phone_numbers,
+            emails,
+            address,
+            birthday
+        )
 
         console = Console()
         with StringIO() as buf:
@@ -305,10 +389,10 @@ class AddressBook(UserDict):
         )
 
         table.add_column("Name\n", style="dark_orange", width=20)
-        table.add_column("Phones\n", style="sky_blue3", justify="center", width=16)
-        table.add_column("Emails\n", style="sky_blue3", justify="center", width=30)
-        table.add_column("Address\n", style="sky_blue3", justify="center")
-        table.add_column("Birthday\n", style="sky_blue3", justify="center", width=16)
+        table.add_column("Phones\n", style="green", justify="center", width=16)
+        table.add_column("Emails\n", style="green", justify="center", width=30)
+        table.add_column("Address\n", style="green", justify="center")
+        table.add_column("Birthday\n", style="green", justify="center", width=16)
 
         for record in self.data.values():
             phone_numbers = (

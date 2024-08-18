@@ -23,7 +23,12 @@ Example:
 
 from rich import print as rich_print
 
-def print_with_newlines(content: str, lines_before: int = 1, lines_after: int = 1, use_rich_print: bool = True) -> None:
+def print_with_newlines(
+    content: str,
+    lines_before: int = 1,
+    lines_after: int = 1,
+    use_rich_print: bool = True
+) -> None:
     """
     Prints content with a specified number of empty lines before and after the content.
 
