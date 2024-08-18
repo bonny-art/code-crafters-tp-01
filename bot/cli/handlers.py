@@ -46,6 +46,8 @@ from bot.models.email import Email
 from bot.models.address import Address
 from bot.models.birthday import Birthday
 
+from bot.utils import print_with_newlines
+
 console = Console()
 
 def show_help() -> tuple:
@@ -108,7 +110,7 @@ def show_help() -> tuple:
         "- 'all-notes':         Display all notes.\n"
         "- 'search-note':       Search for notes.\n"
         "                       Usage by text: search-note <input>\n"
-        "                       Usage by tags: search-note #<tag> #<tag2>\n"
+        "                       Usage by tags: search-note #<tag> [#<tag2> ... #<tagN>]\n"
         "- 'add-note-tag':      Add a tag to a note.\n"
         "                       Usage: add-note-tag <id> <tag1> [<tag2> ... <tagN>]\n"
         "- 'delete-note-tag':   Remove a tag from a note.\n"
@@ -220,7 +222,8 @@ def add_contact(args: List[str], address_book: AddressBook) -> str:
 
     while True:
         birthday = Prompt.ask(
-            "\n[cyan]Enter birthday (DD.MM.YYYY) (or '[dark_orange]n[/dark_orange]' to skip)[/cyan]",
+            "\n[cyan]Enter birthday (DD.MM.YYYY) "
+            "(or '[dark_orange]n[/dark_orange]' to skip)[/cyan]",
             console=console
         )
         if birthday.lower() == "n":
@@ -287,6 +290,12 @@ def change_contact(args: List[str], address_book: AddressBook) -> str:
             return str(obj)
 
     while True:
+        print_with_newlines(
+            address_book.show_single_contact(record),
+            lines_before=0,
+            lines_after=0,
+            use_rich_print=False
+        )
         field_to_edit = Prompt.ask(
             """[cyan]
             Which field would you like to edit?
@@ -306,13 +315,22 @@ def change_contact(args: List[str], address_book: AddressBook) -> str:
             break
 
         if field_to_edit not in field_map:
-            console.print("[red]Invalid option. Please choose a valid number or 'exit' to stop.[/red]")
+            console.print(
+                "[red]Invalid option. "
+                "Please choose a valid number or 'exit' to stop.[/red]"
+            )
             continue
 
         selected_field = field_map[field_to_edit]
 
         # Show all contact information before editing
-        console.print(f"[cyan]Current contact information:[/cyan] {record}")
+        console.print("[cyan]Current contact information:[/cyan]")
+        print_with_newlines(
+            address_book.show_single_contact(record),
+            lines_before=0,
+            lines_after=0,
+            use_rich_print=False
+        )
 
         # Handle Name Editing
         if selected_field == "name":
@@ -334,16 +352,23 @@ def change_contact(args: List[str], address_book: AddressBook) -> str:
 
             # Handle fields that store lists (Phones, Emails)
             if selected_field in ["phones", "emails"]:
-                extracted_values = [extract_value(value) for value in current_values] if current_values else []
+                extracted_values = (
+                    [extract_value(value) for value in current_values]
+                    if current_values else []
+                )
 
                 if not extracted_values:
-                    console.print(f"[yellow]No current {selected_field} found. Switching to add mode.[/yellow]")
+                    console.print(
+                        f"[yellow]No current {selected_field} found. "
+                        "Switching to add mode.[/yellow]"
+                    )
                     action = "add"
                 else:
-                    action = Prompt.ask(
-                        f"Would you like to edit an existing {selected_field[:-1]} or add a new one? (edit/add or type 'back' to cancel)",
-                        default="add"
-                    ).lower()
+                    prompt_message = (
+                        f"Would you like to edit an existing {selected_field[:-1]} or "
+                        "add a new one? (edit/add or type 'back' to cancel)"
+                    )
+                    action = Prompt.ask(prompt_message, default="add").lower()
 
                 # Handle exit action
                 if action == "back":
@@ -351,30 +376,53 @@ def change_contact(args: List[str], address_book: AddressBook) -> str:
 
                 if action == "edit":
                     console.print(f"[cyan]Current {selected_field}:[/cyan] {extracted_values}")
-                    old_value = Prompt.ask(f"Enter the current {selected_field[:-1]} to be replaced (or type 'back' to cancel)")
+                    old_value = Prompt.ask(
+                        f"Enter the current {selected_field[:-1]} to be replaced "
+                        "(or type 'back' to cancel)"
+                    )
                     if old_value.lower() == 'back':
                         continue
 
                     if old_value not in extracted_values:
-                        console.print(f"[red]The {selected_field[:-1]} '{old_value}' does not exist.[/red]")
+                        console.print(
+                            f"[red]The {selected_field[:-1]} '{old_value}' "
+                            "does not exist.[/red]"
+                        )
                         continue
 
                 # Editing or adding loop with exception handling
                 while True:
-                    new_value = Prompt.ask(f"Enter the new value for {selected_field} (leave empty to remove or type 'back' to cancel)", default="")
+                    if action == "add":
+                        prompt_message = (
+                            f"Enter the new value for {selected_field[:-1]} "
+                            "(or type 'back' to cancel)"
+                        )
+                    else:  # Режим редагування
+                        prompt_message = (
+                            f"Enter the new value for {selected_field[:-1]} "
+                            "(leave empty to remove or type 'back' to cancel)"
+                        )
+
+                    new_value = Prompt.ask(prompt_message, default="")
                     if new_value.lower() == 'back':
                         break
 
                     try:
                         if new_value.strip() == "" and old_value:
                             result = record.edit_field(selected_field, old_value, None)
-                            console.print(f"[green]{selected_field[:-1].capitalize()} '{old_value}' has been removed.[/green]")
+                            console.print(
+                                f"[green]{selected_field[:-1].capitalize()} "
+                                f"'{old_value}' has been removed.[/green]"
+                            )
                             break
 
                         # Handle duplication check
                         elif new_value.strip() != "":
                             if new_value in extracted_values:
-                                console.print(f"[red]The {selected_field[:-1]} '{new_value}' is already in the list.[/red]")
+                                console.print(
+                                    f"[red]The {selected_field[:-1]} '{new_value}' "
+                                    "is already in the list.[/red]"
+                                )
                                 continue
 
                             result = record.edit_field(selected_field, old_value, new_value)
@@ -392,7 +440,10 @@ def change_contact(args: List[str], address_book: AddressBook) -> str:
 
                 # Editing loop for Address and Birthday with exception handling
                 while True:
-                    new_value = Prompt.ask(f"Enter the new value for {selected_field} (this will overwrite the existing value, or type 'back' to cancel)")
+                    new_value = Prompt.ask(
+                        f"Enter the new value for {selected_field} "
+                        "(this will overwrite the existing value, or type 'back' to cancel)"
+                    )
                     if new_value.lower() == 'back':
                         break
 
@@ -418,7 +469,8 @@ def delete_contact(args: List[str], address_book: AddressBook) -> str:
 
     Args:
         args (List[str]): A list where the elements are parts of the contact's name to be deleted.
-        address_book (AddressBook): The address book instance from which the contact will be deleted.
+        address_book (AddressBook): The address book instance from which the contact will
+        be deleted.
 
     Returns:
         str: A message indicating whether the contact was successfully deleted or not found.
@@ -468,7 +520,8 @@ def search_contact(args: List[str], address_book: AddressBook) -> str:
 
     Parameters:
     args (List[str]): A list of strings where each string represents a search criterion.
-    address_book (AddressBook): An instance of the AddressBook class containing contacts to be searched.
+    address_book (AddressBook): An instance of the AddressBook class containing contacts
+    to be searched.
 
     Returns:
     str: A string with the matching contacts, or a message indicating no matches were found.
@@ -552,16 +605,20 @@ def birthdays(args: List[str], address_book: AddressBook) -> str:
     Retrieve a list of upcoming birthdays from the address book.
 
     Parameters:
-    args (List[str]): Command-line arguments where the first argument specifies the number of days to look ahead for upcoming birthdays.
+    args (List[str]): Command-line arguments where the first argument specifies the number
+    of days to look ahead for upcoming birthdays.
     address_book (AddressBook): The address book containing contacts.
 
     Returns:
-    str: A message listing upcoming birthdays within the specified number of days, or an error message if arguments are incorrect, or if there are no contacts in the address book.
+    str: A message listing upcoming birthdays within the specified number of days, or an
+    error message if arguments are incorrect, or if there are no contacts in the address book.
 
     Error Cases:
     - If no arguments are provided, the default is 7 days.
-    - If more than one argument is provided, an error message is returned indicating too many arguments.
-    - If the provided argument is not an integer, an error message is returned indicating that the number of days must be an integer.
+    - If more than one argument is provided, an error message is returned indicating too
+    many arguments.
+    - If the provided argument is not an integer, an error message is returned indicating
+    that the number of days must be an integer.
     - If the address book is empty, a message indicating there are no contacts is returned.
     """
     if len(args) == 0:

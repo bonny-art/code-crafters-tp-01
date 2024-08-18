@@ -79,7 +79,11 @@ class NoteBook(UserDict):
         - str: A formatted table string of the found notes or a message if no notes are found.
         """
         if not keyword:
-            return "Provide at least one search word or tag!"
+            return (
+                "Provide at least one search word or tag! "
+                "Usage by text: search-note <input> "
+                "Usage by tags: search-note #<tag> [#<tag2> ... #<tagN>]"
+            )
 
         if not self.data:
             return "No notes found."
@@ -174,7 +178,7 @@ class NoteBook(UserDict):
         )
         table.add_column("Id", style="green", justify="center", width=40)
         table.add_column("Creation Date", style="green", justify="center", width=30)
-        table.add_column("Text", style="green", justify="left", no_wrap=False)
+        table.add_column("Text", style="dark_orange", justify="left", no_wrap=False)
         table.add_column("Tags", style="green", justify="left", width=15, no_wrap=False)
 
         for n in notes:
