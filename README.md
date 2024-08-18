@@ -36,6 +36,21 @@ Contacts Bot is a Python-based terminal application for managing your contacts e
     cd code-crafters-tp-01
     ```
 
+### Option 1: Install as a package
+
+2. Install the package:
+
+    ```
+    pip install .
+    ```
+
+3. Run the bot with the command:
+
+    ```
+    run-bot
+    ```
+
+### Option 2: Run from `main.py`
 2. Install dependencies:
 
     ```
