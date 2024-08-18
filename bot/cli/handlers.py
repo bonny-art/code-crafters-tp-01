@@ -290,6 +290,7 @@ def change_contact(args: List[str], address_book: AddressBook) -> str:
         field_to_edit = Prompt.ask(
             """[cyan]
             Which field would you like to edit?
+            [green]Just enter the number next to the field.[/green]
             1: Name
             2: Phones
             3: Emails
