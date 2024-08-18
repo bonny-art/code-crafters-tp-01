@@ -97,6 +97,11 @@ def main() -> None:
     address_book = load_data()
     note_list = note_load_data()
 
+    logo = ""
+    with open("logo.txt", "r") as file:
+        logo = file.read()
+
+    print_with_newlines(f"[blue]{logo}")
     print_with_newlines("Welcome to the assistant bot!")
     print_with_newlines("Type 'help' to see a list of available commands.", lines_before=0)
 
