@@ -25,7 +25,7 @@ Example:
 Usage:
     Import the necessary functions into your script to handle user commands for managing contacts.
 """
-from .handlers import show_help, add_contact, change_contact, show_phone, show_all, search
+from .handlers import show_help, add_contact, change_contact, show_phones, show_all, search_contact
 from .input_error import input_error
 from .parse_input import parse_input
 from .data_manager import save_data, load_data
