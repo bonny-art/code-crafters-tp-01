@@ -34,7 +34,6 @@ and retrieving contact information.
 """
 
 from typing import List
-import os
 from rich.prompt import Prompt
 from rich.console import Console
 
