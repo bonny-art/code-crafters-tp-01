@@ -34,7 +34,7 @@ and retrieving contact information.
 """
 
 from typing import List
-
+import os
 from rich.prompt import Prompt
 from rich.console import Console
 
@@ -45,10 +45,22 @@ from bot.models.phone import Phone
 from bot.models.email import Email
 from bot.models.address import Address
 from bot.models.birthday import Birthday
-
+import pkg_resources
 from bot.utils import print_with_newlines
 
 console = Console()
+
+
+def get_logo_file():
+    try:
+        # Use pkg_resources to locate the logo.txt file within the package
+        logo_path = pkg_resources.resource_filename('bot.cli', 'logo.txt')
+        with open(logo_path, "r") as file:
+            logo = file.read()
+            return logo
+    except Exception as ex:
+        print(f"An error has occurred: {ex}")
+
 
 def show_help() -> tuple:
     """
